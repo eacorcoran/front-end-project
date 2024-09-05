@@ -1,0 +1,100 @@
+body {
+  font-family: Roboto, sans-serif;
+  font-size: 18px;
+  font-weight: lighter;
+  width: 100%;
+  margin: auto;
+}
+
+.header-container {
+  width: 100%;
+  height: 85px;
+  background-color: #005eb8;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.right-header {
+  display: flex;
+  align-items: center;
+}
+
+.left-header {
+  display: flex;
+  align-items: center;
+}
+
+.header-logo img {
+  height: 85px;
+}
+
+.header-links-underlined,
+.header-links {
+  margin: 0 15px;
+  color: #fff;
+}
+
+.header-links-underlined > a {
+  text-decoration: underline;
+}
+
+.header-links > a {
+  text-decoration: none;
+}
+
+a:visited {
+  color: #fff;
+}
+
+.sign-up form {
+  display: flex;
+  align-items: center;
+}
+
+.sign-up input[type='email'] {
+  padding: 5px;
+  margin-right: 5px;
+  border: 1px solid #fff;
+  border-radius: 4px;
+  height: 36px;
+  width: 200px;
+  font-family: Roboto, sans-serif;
+  font-size: 16px;
+  font-weight: 100;
+}
+
+.sign-up button {
+  padding: 5px 10px;
+  border: solid 1px #fff;
+  color: #fff;
+  border-radius: 4px;
+  background-color: #005eb8;
+  cursor: pointer;
+  height: 36px;
+  width: 79px;
+  font-family: Roboto, sans-serif;
+  font-size: 16px;
+  font-weight: 100;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  background-color: #005eb8;
+  padding: 10px;
+  height: 110px;
+}
+
+.footer-logo img {
+  max-width: 100%;
+  height: 91px;
+}

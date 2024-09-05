@@ -1,20 +1,66 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AJAX Project</title>
-  <link rel="icon" href="images/favicon.ico">
-  <link rel="stylesheet" href="css/reset.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-  <header>
-  </header>
-  <main>
-  </main>
-  <script src="js/data.js"></script>
-  <script src="js/main.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AJAX Project</title>
+    <link rel="icon" href="images/favicon.ico" />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto&display=swap"
+      rel="stylesheet" />
+  </head>
+  <body>
+    <div class="page-container">
+      <div class="header-container">
+        <div class="row">
+          <div class="left-header">
+            <div class="header-logo">
+              <img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQyuuipI8yEKxfvysG3Sf1qlWm7gTTi4rzjQ&s"
+                alt="ncaa logo" />
+            </div>
+            <div class="header-links-underlined">
+              <a href="">Conferences</a>
+            </div>
+            <div class="header-links">
+              <a href="">Teams</a>
+            </div>
+            <div class="header-links">
+              <a href="">Schedules</a>
+            </div>
+          </div>
+          <div class="right-header">
+            <div class="sign-up">
+              <form action="/submit" method="post">
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="Join our newsletter!"
+                  required />
+                <button type="submit">Sign-Up</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="conferences-content">
+        <p>placeholder for conferences content</p>
+      </div>
+      <div class="footer">
+        <div class="footer-logo">
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQyuuipI8yEKxfvysG3Sf1qlWm7gTTi4rzjQ&s"
+            alt="ncaa logo footer" />
+        </div>
+      </div>
+    </div>
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
+  </body>
 </html>
