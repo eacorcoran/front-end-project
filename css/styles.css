@@ -102,7 +102,8 @@ tr a:visited {
 }
 
 .teams-content,
-.roster-section {
+.roster-section,
+.schedule-section {
   font-family: Arial, Helvetica, sans-serif;
   text-align: center;
   margin-top: 50px;

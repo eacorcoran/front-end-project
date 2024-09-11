@@ -78,8 +78,9 @@ function updateDOMTeams(teams) {
         // Add click event listener to the schedule link
         $scheduleLink.addEventListener('click', (event) => {
             event.preventDefault();
-            const abbreviation = $abbreviationCell.textContent;
-            console.log('Abbreviation:', abbreviation);
+            const abbreviation = $abbreviationCell.textContent ?? '';
+            const fullteamname = $teamNameCell.textContent ?? '';
+            updateSchedule(fullteamname, abbreviation, '20232024');
         });
         $scheduleCell.appendChild($scheduleLink);
         const $actionsCell = $row.insertCell();
@@ -130,9 +131,56 @@ function updateDOMRoster(nhlteamRoster) {
     const $rosterHeader = document.querySelector('.roster-section');
     if (!$rosterHeader)
         throw new Error('The $rosterHeader query failed');
-    $rosterHeader.textContent = nhlteamRoster[0].fullteamname + ' Roster (' +
-        nhlteamRoster[0].season.slice(0, 4) +
-        '-' +
-        nhlteamRoster[0].season.slice(4)
-        + ")";
+    $rosterHeader.textContent =
+        nhlteamRoster[0].fullteamname +
+            ' Roster (' +
+            nhlteamRoster[0].season.slice(0, 4) +
+            '-' +
+            nhlteamRoster[0].season.slice(4) +
+            ')';
+}
+// Function to update the DOM with roster data
+function updateDOMSchedule(nhlteamSchedule) {
+    const $table = document.querySelector('.schedule-table');
+    if (!$table)
+        throw new Error('The $table query failed');
+    // Find the tbody element within the table
+    const $tbody = $table.querySelector('tbody');
+    if (!$tbody)
+        throw new Error('The tbody query failed');
+    // Clear existing rows in the tbody
+    while ($tbody.rows.length > 0) {
+        $tbody.deleteRow(0);
+    }
+    // Add new rows based on the teams data
+    for (let i = 0; i < nhlteamSchedule.length; i++) {
+        // Create a new row
+        const $row = $tbody.insertRow();
+        // Create cells for each row
+        const $gameidCell = $row.insertCell();
+        $gameidCell.textContent = nhlteamSchedule[i].gameid;
+        const $awayTeamCell = $row.insertCell();
+        const $awayteamimage = document.createElement('img');
+        $awayteamimage.src = nhlteamSchedule[i].awayteamlogo;
+        $awayTeamCell.appendChild($awayteamimage);
+        const $homeTeamCell = $row.insertCell();
+        const $hometeamimage = document.createElement('img');
+        $hometeamimage.src = nhlteamSchedule[i].hometeamlogo;
+        $homeTeamCell.appendChild($hometeamimage);
+        const $dateCell = $row.insertCell();
+        $dateCell.textContent = nhlteamSchedule[i].starttime;
+        const $scoreCell = $row.insertCell();
+        $scoreCell.textContent =
+            nhlteamSchedule[i].awayteamscore + '-' + nhlteamSchedule[i].hometeamscore;
+        const $venueCell = $row.insertCell();
+        $venueCell.textContent = nhlteamSchedule[i].venuename;
+        const $linkCell = $row.insertCell();
+    }
+    const $scheduleHeader = document.querySelector('.schedule-section');
+    if (!$scheduleHeader)
+        throw new Error('The $scheduleHeader query failed');
+    $scheduleHeader.textContent =
+        'Seaons Schedule (' +
+            nhlteamSchedule[0].season
+            + ')';
 }

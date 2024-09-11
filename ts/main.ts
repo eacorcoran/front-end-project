@@ -24,6 +24,20 @@ interface Roster {
   hometown: string;
 }
 
+interface Schedule {
+  season: string;
+  gameid: string;
+  awayteamcode: string;
+  awayteamlogo: string;
+  awayteamscore: number;
+  hometeamcode: string;
+  hometeamlogo: string;
+  hometeamscore: number;
+  venuename: string;
+  venuetime: string;
+  starttime: string;
+}
+
 //Get teams from API
 var targetUrlTeams = encodeURIComponent(
   'https://api.nhle.com/stats/rest/en/team',
@@ -79,6 +93,37 @@ async function fetchRoster(abbreviation: string, season: string) {
     const arrayRoster = await responseRoster.json();
 
     return arrayRoster;
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+//Get schedule from API
+async function fetchSchedule(abbreviation: string, season: string) {
+  const teamRoster = abbreviation;
+  const teamSeason = season;
+  const URLSchedule = `https://api-web.nhle.com/v1/club-schedule-season/${teamRoster}/${teamSeason}`;
+
+  var targetUrlSchedule = encodeURIComponent(URLSchedule);
+
+  try {
+    const responseSchedule = await fetch(
+      'https://cors.learningfuze.com?url=' + targetUrlSchedule,
+      {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+        },
+      },
+    );
+
+    if (!responseSchedule.ok) {
+      throw new Error(`HTTP error! Status: ${responseSchedule.status}`);
+    }
+
+    const arraySchedule = await responseSchedule.json();
+
+    return arraySchedule;
   } catch (error) {
     console.error('Error:', error);
   }
@@ -199,4 +244,35 @@ async function updateRoster(
   }
 
   updateDOMRoster(nhlteamRoster);
+}
+
+//Populate schedule data from the API
+async function updateSchedule(
+  fullteamname: string,
+  abbreviation: string,
+  season: string,
+) {
+  const schedule = await fetchSchedule(abbreviation, season); // Wait for the promise to resolve
+
+  const nhlteamSchedule: Schedule[] = [];
+
+  for (let i = 0; i < schedule.games.length; i++) {
+    const schedulecount = schedule.games[i];
+
+    nhlteamSchedule.push({
+      season: schedulecount.season,
+      gameid: schedulecount.id,
+      awayteamcode: schedulecount.awayTeam.abbrev,
+      awayteamlogo: schedulecount.awayTeam.logo,
+      awayteamscore: schedulecount.awayTeam.score,
+      hometeamcode: schedulecount.homeTeam.abbrev,
+      hometeamlogo: schedulecount.homeTeam.logo,
+      hometeamscore: schedulecount.homeTeam.score,
+      venuename: schedulecount.venue.default,
+      venuetime: schedulecount.venueUTCOffset,
+      starttime: schedulecount.startTimeUTC,
+    });
+  }
+
+  updateDOMSchedule(nhlteamSchedule);
 }
