@@ -13,8 +13,21 @@ interface FavoriteTeams {
   triCode: string;
 }
 
+interface Roster {
+  fullteamname: string;
+  team: string;
+  season: string;
+  image: string;
+  jersey: string;
+  fullname: string;
+  position: string;
+  hometown: string;
+}
+
 //Get teams from API
-var targetUrlTeams = encodeURIComponent('https://api.nhle.com/stats/rest/en/team');
+var targetUrlTeams = encodeURIComponent(
+  'https://api.nhle.com/stats/rest/en/team',
+);
 
 async function fetchTeams() {
   try {
@@ -38,16 +51,16 @@ async function fetchTeams() {
   } catch (error) {
     console.error('Error:', error);
   }
-};
+}
 
 //Get roster from API
-const teamRoster = 'DET';
-const teamSeason = '20232024';
-const URLRoster = `https://api-web.nhle.com/v1/roster/${teamRoster}/${teamSeason}`;
+async function fetchRoster(abbreviation: string, season: string) {
+  const teamRoster = abbreviation;
+  const teamSeason = season;
+  const URLRoster = `https://api-web.nhle.com/v1/roster/${teamRoster}/${teamSeason}`;
 
-var targetUrlRosters = encodeURIComponent(URLRoster);
+  var targetUrlRosters = encodeURIComponent(URLRoster);
 
-async function fetchRoster() {
   try {
     const responseRoster = await fetch(
       'https://cors.learningfuze.com?url=' + targetUrlRosters,
@@ -66,7 +79,6 @@ async function fetchRoster() {
     const arrayRoster = await responseRoster.json();
 
     return arrayRoster;
-
   } catch (error) {
     console.error('Error:', error);
   }
@@ -77,10 +89,10 @@ document.addEventListener('DOMContentLoaded', () => {
   updateTeams();
 });
 
-// Initialize the list on page load
-document.addEventListener('DOMContentLoaded', () => {
-  updateRoster();
-});
+// // Initialize the list on page load
+// document.addEventListener('DOMContentLoaded', () => {
+//   updateRoster();
+// });
 
 //Populates team data from the API and populates the team table
 async function updateTeams() {
@@ -111,7 +123,80 @@ async function updateTeams() {
 }
 
 //Populate roster data from the API
-async function updateRoster() {
-  const roster = await fetchRoster(); // Wait for the promise to resolve
-  console.log(roster); // Use the teams data
+async function updateRoster(
+  fullteamname: string,
+  abbreviation: string,
+  season: string,
+) {
+  const roster = await fetchRoster(abbreviation, season); // Wait for the promise to resolve
+
+  const nhlteamRoster: Roster[] = [];
+
+  if (Array.isArray(roster.defensemen)) {
+    for (let i = 0; i < roster.defensemen.length; i++) {
+      const defenseman = roster.defensemen[i];
+
+      const fullName =
+        defenseman.lastName.default + ', ' + defenseman.firstName.default;
+
+      nhlteamRoster.push({
+        fullteamname: fullteamname,
+        team: abbreviation,
+        season: season,
+        image: defenseman.headshot,
+        jersey: defenseman.sweaterNumber,
+        fullname: fullName,
+        position: 'Defense',
+        hometown: defenseman.birthCountry,
+      });
+    }
+  } else {
+    console.error('roster.defensemen is not an array');
+  }
+
+  if (Array.isArray(roster.forwards)) {
+    for (let i = 0; i < roster.forwards.length; i++) {
+      const forwards = roster.forwards[i];
+
+      const fullName =
+        forwards.lastName.default + ', ' + forwards.firstName.default;
+
+      nhlteamRoster.push({
+        fullteamname: fullteamname,
+        team: abbreviation,
+        season: season,
+        image: forwards.headshot,
+        jersey: forwards.sweaterNumber,
+        fullname: fullName,
+        position: 'Forward',
+        hometown: forwards.birthCountry,
+      });
+    }
+  } else {
+    console.error('roster.defensemen is not an array');
+  }
+
+  if (Array.isArray(roster.goalies)) {
+    for (let i = 0; i < roster.goalies.length; i++) {
+      const goalies = roster.goalies[i];
+
+      const fullName =
+        goalies.lastName.default + ', ' + goalies.firstName.default;
+
+      nhlteamRoster.push({
+        fullteamname: fullteamname,
+        team: abbreviation,
+        season: season,
+        image: goalies.headshot,
+        jersey: goalies.sweaterNumber,
+        fullname: fullName,
+        position: 'Goalie',
+        hometown: goalies.birthCountry,
+      });
+    }
+  } else {
+    console.error('roster.defensemen is not an array');
+  }
+
+  updateDOMRoster(nhlteamRoster);
 }

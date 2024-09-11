@@ -55,9 +55,23 @@
           The National Hockey League is a professional ice hockey league in
           North America comprising 32 teams (25 in the United States and 7 in
           Canada). The Stanley Cup, the oldest professional sports trophy in
-          North America, is awarded annually to the league playoff champion
-          at the end of each season.
+          North America, is awarded annually to the league playoff champion at
+          the end of each season.
         </h3>
+        <label for="scheduleSeason">Select your desired season:</label>
+        <select id="scheduleSeason">
+          <option value="20242025">2024-2025</option>
+          <option value="20232024">2023-2024</option>
+          <option value="20222023">2022-2023</option>
+          <option value="20212022">2021-2022</option>
+          <option value="20202021">2020-2021</option>
+          <option value="20192020">2019-2020</option>
+          <option value="20182019">2018-2019</option>
+          <option value="20172018">2017-2018</option>
+          <option value="20162017">2016-2017</option>
+          <option value="20152016">2015-2016</option>
+          <option value="20142015">2014-2015</option>
+        </select>
         <div id="table-container">
           <table class="teams-table">
             <thead>
@@ -72,6 +86,23 @@
             <tbody></tbody>
           </table>
         </div>
+      </div>
+      <div id="roster-container">
+        <h1 class="roster-section"></h1>
+        <table class="roster-table">
+          <thead>
+            <tr>
+              <th>Season</th>
+              <th>Team</th>
+              <th>Headshot</th>
+              <th>Jersey #</th>
+              <th>Full Name</th>
+              <th>Position</th>
+              <th>Country</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
       </div>
       <div class="footer">
         <div class="footer-logo">
