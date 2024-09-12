@@ -1,5 +1,9 @@
 /* exported data */
 
+let data = {
+  view: 'teams',
+};
+
 //List of current NHL teams used to filter out old teams from the data returned from the API
 const nhlTeams: string[] = [
   'DET',
@@ -74,6 +78,7 @@ function updateDOMTeams(teams: Teams[]): void {
       const abbreviation = $abbreviationCell.textContent ?? '';
       const fullteamname = $teamNameCell.textContent ?? '';
       updateRoster(fullteamname, abbreviation, '20232024');
+      viewSwap("roster");
     });
 
     $rosterCell.appendChild($rosterLink);
@@ -90,6 +95,7 @@ function updateDOMTeams(teams: Teams[]): void {
       const abbreviation = $abbreviationCell.textContent ?? '';
       const fullteamname = $teamNameCell.textContent ?? '';
       updateSchedule(fullteamname, abbreviation, '20232024');
+      viewSwap('schedule');
     });
 
     $scheduleCell.appendChild($scheduleLink);
@@ -211,7 +217,36 @@ function updateDOMSchedule(nhlteamSchedule: Schedule[]): void {
   if (!$scheduleHeader) throw new Error('The $scheduleHeader query failed');
 
   $scheduleHeader.textContent =
-    'Seaons Schedule (' +
-    nhlteamSchedule[0].season
-    +')';
+    'Full Season Schedule (' + nhlteamSchedule[0].season + ')';
+}
+
+/* function to swap views between schedule, teams, roster, and statistics */
+function viewSwap(viewName: string) {
+  const $teams = document.querySelector("div[data-view='teams']");
+  const $roster = document.querySelector("div[data-view='roster']");
+  const $schedule = document.querySelector("div[data-view='schedule']");
+
+  if (!$teams) throw new Error('$teams is null');
+  if (!$roster) throw new Error('$roster is null');
+  if (!$schedule) throw new Error('$schedule is null');
+
+  if (viewName === 'teams') {
+    $roster.setAttribute('class', 'hidden');
+    $schedule.setAttribute('class', 'hidden');
+    $teams.setAttribute('class', '');
+    data.view = 'teams';
+    localStorage.setItem('data-view', data.view);
+  } else if (viewName === 'roster') {
+    $teams.setAttribute('class', 'hidden');
+    $schedule.setAttribute('class', 'hidden');
+    $roster.setAttribute('class', '');
+    data.view = 'roster';
+    localStorage.setItem('data-view', data.view);
+  } else if (viewName === 'schedule') {
+    $teams.setAttribute('class', 'hidden');
+    $roster.setAttribute('class', 'hidden');
+    $schedule.setAttribute('class', '');
+    data.view = 'schedule';
+    localStorage.setItem('data-view', data.view);
+  }
 }
