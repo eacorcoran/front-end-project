@@ -3,6 +3,7 @@
 let data = {
     view: 'teams',
 };
+let selectedSeason = '20242025';
 //List of current NHL teams used to filter out old teams from the data returned from the API
 const nhlTeams = [
     'DET',
@@ -70,7 +71,7 @@ function updateDOMTeams(teams) {
             event.preventDefault();
             const abbreviation = $abbreviationCell.textContent ?? '';
             const fullteamname = $teamNameCell.textContent ?? '';
-            updateRoster(fullteamname, abbreviation, '20232024');
+            updateRoster(fullteamname, abbreviation, selectedSeason);
             viewSwap("roster");
         });
         $rosterCell.appendChild($rosterLink);
@@ -84,7 +85,7 @@ function updateDOMTeams(teams) {
             event.preventDefault();
             const abbreviation = $abbreviationCell.textContent ?? '';
             const fullteamname = $teamNameCell.textContent ?? '';
-            updateSchedule(fullteamname, abbreviation, '20232024');
+            updateSchedule(fullteamname, abbreviation, selectedSeason);
             viewSwap('schedule');
         });
         $scheduleCell.appendChild($scheduleLink);

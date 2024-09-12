@@ -183,3 +183,15 @@ async function updateSchedule(fullteamname, abbreviation, season) {
     }
     updateDOMSchedule(nhlteamSchedule);
 }
+// Ensure the DOM is fully loaded before accessing elements
+document.addEventListener('DOMContentLoaded', () => {
+    // Get reference to the season dropdown
+    const selectElement = document.getElementById('scheduleSeason');
+    const displayElement = document.getElementById('selectedSeason');
+    const handleSelectChange = () => {
+        selectedSeason = selectElement.value;
+        console.log(selectedSeason);
+    };
+    // Add event listener to the select element
+    selectElement.addEventListener('change', handleSelectChange);
+});
