@@ -275,7 +275,6 @@ function viewSwap(viewName: string) {
 function showconfirmation(abbreviation: string) {
   const $dialog = document.querySelector('dialog');
   if (!$dialog) throw new Error('$dialog does not exist');
-
   $dialog.showModal();
 }
 

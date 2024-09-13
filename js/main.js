@@ -65,18 +65,25 @@ async function fetchSchedule(abbreviation, season) {
         console.error('Error:', error);
     }
 }
-// Initialize the list on page load
+// Initialize the teams list on page load
 document.addEventListener('DOMContentLoaded', () => {
     updateTeams();
+    // Get reference to the season dropdown
+    const selectElement = document.getElementById('scheduleSeason');
+    const displayElement = document.getElementById('selectedSeason');
+    const handleSelectChange = () => {
+        selectedSeason = selectElement.value;
+    };
+    // Add event listener to the select element
+    selectElement.addEventListener('change', handleSelectChange);
 });
 //Populates team data from the API and populates the team table
 async function updateTeams() {
-    const teams = await fetchTeams(); // Wait for the promise to resolve
+    const teams = await fetchTeams();
     const favorites = readFavorites();
-    //const nhlteamlist: Teams[] = [];
     const favoriteTeams = [];
     const otherTeams = [];
-    // Filter teams to separate favorite teams from the rest
+    // Separate favorite teams from the rest
     for (let i = 0; i < favorites.length; i++) {
         for (let y = 0; y < teams.length; y++) {
             if (teams[y].triCode === favorites[i])
@@ -106,7 +113,7 @@ async function updateTeams() {
 }
 //Populate roster data from the API
 async function updateRoster(fullteamname, abbreviation, season) {
-    const roster = await fetchRoster(abbreviation, season); // Wait for the promise to resolve
+    const roster = await fetchRoster(abbreviation, season);
     const nhlteamRoster = [];
     if (Array.isArray(roster.defensemen)) {
         for (let i = 0; i < roster.defensemen.length; i++) {
@@ -189,14 +196,3 @@ async function updateSchedule(fullteamname, abbreviation, season) {
     }
     updateDOMSchedule(nhlteamSchedule);
 }
-// Ensure the DOM is fully loaded before accessing elements
-document.addEventListener('DOMContentLoaded', () => {
-    // Get reference to the season dropdown
-    const selectElement = document.getElementById('scheduleSeason');
-    const displayElement = document.getElementById('selectedSeason');
-    const handleSelectChange = () => {
-        selectedSeason = selectElement.value;
-    };
-    // Add event listener to the select element
-    selectElement.addEventListener('change', handleSelectChange);
-});

@@ -18,6 +18,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin: auto;
 }
 
 .right-header {
@@ -90,9 +91,10 @@ tr a:visited {
 
 .footer {
   text-align: center;
+  align-content: center;
   background-color: black;
   padding: 10px;
-  margin-top:50px;
+  margin-top: 50px;
   height: 110px;
 }
 
@@ -117,32 +119,32 @@ h1 {
   margin-bottom: 30px;
 }
 
-
 h3 {
   font-size: large;
   font-weight: 10;
   color: grey;
-  margin-right: 100px;
-  margin-left: 100px;
-  margin-bottom: 40px;
+  margin-right: 25px;
+  margin-left: 25px;
+  margin-bottom: 25px;
   letter-spacing: 5;
   line-height: 1.5;
 }
 
 table {
-    width: 75%;
-    border-collapse: collapse;
-    margin: auto;
+  width: 100%;
+  border-collapse: collapse;
+  margin: auto;
 }
 
-th, td {
-    padding: 10px;
-    border: 1px solid black;
-    text-align: center;
+th,
+td {
+  padding: 10px;
+  border: 1px solid black;
+  text-align: center;
 }
 
 tbody tr:nth-child(even) {
-    background-color: lightgray;
+  background-color: lightgray;
 }
 
 .fa-regular.fa-star,
@@ -169,4 +171,83 @@ select {
 
 #roster-section {
   margin: 50px;
+}
+
+/* There is a new @media rule for only screen and min-width 768px */
+@media only screen and (max-width: 400px) {
+  .header-container {
+    width: 100%;
+  }
+  .right-header,
+  .footer-logo {
+    display: none;
+  }
+
+  .right-footer {
+    width: 100%;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  select {
+    width: 200px;
+  }
+
+  table,
+  table thead,
+  table tbody,
+  table th,
+  table td,
+  table tr {
+    display: block;
+  }
+
+  table thead tr {
+    display: none;
+  }
+
+  table tr {
+    border: 1px solid #ddd;
+    position: relative;
+  }
+
+  table td {
+    border: none;
+    padding: 10px;
+    position: relative;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    padding-left: 10px;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .teams-content,
+  .roster-section,
+  .schedule-section {
+    margin-bottom: 0px;
+  }
+
+  .footer {
+    margin-top: 0px;
+  }
+
+  .fa-regular.fa-star,
+  .fa-solid.fa-star {
+    font-size: larger;
+  }
+}
+
+@media only screen and (min-width: 400px) {
+  .right-footer {
+    display: none;
+  }
 }
