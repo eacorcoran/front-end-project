@@ -131,7 +131,7 @@ h3 {
 }
 
 table {
-  width: 100%;
+  width: 90%;
   border-collapse: collapse;
   margin: auto;
 }
@@ -192,7 +192,11 @@ select {
   }
 
   select {
-    width: 200px;
+    width: 250px;
+  }
+
+  table {
+    width: 100%;
   }
 
   table,
@@ -226,6 +230,7 @@ select {
     position: absolute;
     left: 0;
     padding-left: 10px;
+    padding-right: 10px;
     font-weight: bold;
     text-align: center;
   }
