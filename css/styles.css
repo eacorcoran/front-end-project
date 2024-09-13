@@ -145,7 +145,8 @@ tbody tr:nth-child(even) {
     background-color: lightgray;
 }
 
-.fa-regular.fa-star {
+.fa-regular.fa-star,
+.fa-solid.fa-star {
   text-decoration: none;
 }
 

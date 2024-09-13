@@ -3,6 +3,7 @@
 let data = {
     view: 'teams',
 };
+let favorites = readFavorites();
 let selectedSeason = '20242025';
 //List of current NHL teams used to filter out old teams from the data returned from the API
 const nhlTeams = [
@@ -72,7 +73,7 @@ function updateDOMTeams(teams) {
             const abbreviation = $abbreviationCell.textContent ?? '';
             const fullteamname = $teamNameCell.textContent ?? '';
             updateRoster(fullteamname, abbreviation, selectedSeason);
-            viewSwap("roster");
+            viewSwap('roster');
         });
         $rosterCell.appendChild($rosterLink);
         const $scheduleCell = $row.insertCell();
@@ -93,8 +94,22 @@ function updateDOMTeams(teams) {
         const $faveButton = document.createElement('a');
         $faveButton.href = '#';
         $faveButton.className = 'fa-regular fa-star';
+        // Add click event listener to the favorite button
+        $faveButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            const abbreviation = $abbreviationCell.textContent ?? '';
+            if ($faveButton.className === 'fa-regular fa-star') {
+                $faveButton.className = 'fa-solid fa-star';
+                addfavorites(abbreviation);
+                updateTeams();
+            }
+            else {
+                showconfirmation(abbreviation);
+            }
+        });
         $actionsCell.appendChild($faveButton);
     });
+    updateFavoriteIcons();
 }
 // Function to update the DOM with roster data
 function updateDOMRoster(nhlteamRoster) {
@@ -188,7 +203,7 @@ function updateDOMSchedule(nhlteamSchedule) {
     $scheduleHeader.textContent =
         'Full Season Schedule (' + nhlteamSchedule[0].season + ')';
 }
-/* function to swap views between schedule, teams, roster, and statistics */
+// function to swap views between schedule, teams, roster, and statistics
 function viewSwap(viewName) {
     const $teams = document.querySelector("div[data-view='teams']");
     const $roster = document.querySelector("div[data-view='roster']");
@@ -219,5 +234,58 @@ function viewSwap(viewName) {
         $schedule.setAttribute('class', '');
         data.view = 'schedule';
         localStorage.setItem('data-view', data.view);
+    }
+}
+//show favorites modal confirmation
+function showconfirmation(abbreviation) {
+    const $dialog = document.querySelector('dialog');
+    if (!$dialog)
+        throw new Error('$dialog does not exist');
+    $dialog.showModal();
+}
+//add team to favorites after clicking on the star
+function addfavorites(abbreviation) {
+    favorites.push(abbreviation);
+    writeFavorites();
+}
+//write favorites to local storage so that they are retained on page refresh
+function writeFavorites() {
+    const favoritesJSON = JSON.stringify(favorites);
+    localStorage.setItem('favorites', favoritesJSON);
+}
+//read favorites from local storage so that they utilized after a page refresh
+function readFavorites() {
+    let newFavorites = [];
+    const readJSON = localStorage.getItem('favorites');
+    if (readJSON === null) {
+        newFavorites = [];
+    }
+    else {
+        newFavorites = JSON.parse(readJSON);
+    }
+    return newFavorites;
+}
+//Keep favorited teams with correct icon indicating them as favorite
+function updateFavoriteIcons() {
+    const favorites = readFavorites();
+    // Ensure the tableBody is selected correctly
+    const tableBody = document.querySelector('.teams-table tbody');
+    // Check if tableBody exists
+    if (!tableBody) {
+        console.error('Table body not found.');
+        return;
+    }
+    for (const row of tableBody.rows) {
+        // Get the abbreviation cell
+        const abbrevCell = row.cells[1];
+        // Check if the cell's text content matches a favorite
+        if (favorites.includes(abbrevCell.textContent?.trim() || '')) {
+            // Get the favorite icon cell
+            const favoriteCell = row.cells[4].children[0];
+            if (favoriteCell) {
+                // Update the favorite star to indicate it is a favorite
+                favoriteCell.className = 'fa-solid fa-star';
+            }
+        }
     }
 }
