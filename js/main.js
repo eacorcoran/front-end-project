@@ -196,3 +196,30 @@ async function updateSchedule(fullteamname, abbreviation, season) {
     }
     updateDOMSchedule(nhlteamSchedule);
 }
+//Add click event listener to close out the confirmation modal
+const $cancelButton = document.querySelector('.remove-modal-cancel');
+if (!$cancelButton)
+    throw new Error('$cancelButton is not available');
+$cancelButton.addEventListener('click', (event) => {
+    const $dialog = document.querySelector('dialog');
+    if (!$dialog)
+        throw new Error('$dialog does not exist');
+    pendingDeletion = '';
+    $dialog.close();
+});
+//Add click event listener to remove team from favorites
+const $confirmButton = document.querySelector('.remove-modal-confirm');
+if (!$confirmButton)
+    throw new Error('$confirmButton is not available');
+$confirmButton.addEventListener('click', (event) => {
+    const $dialog = document.querySelector('dialog');
+    if (!$dialog)
+        throw new Error('$dialog does not exist');
+    //Remove team from favorites
+    favorites = removeFavorites(pendingDeletion);
+    //Update local storage
+    writeFavorites();
+    //Refresh the teams roster so that removed teams are no longer marked as a favorite
+    updateTeams();
+    $dialog.close();
+});

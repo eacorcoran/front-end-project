@@ -173,6 +173,42 @@ select {
   margin: 50px;
 }
 
+dialog {
+  font-family: Roboto, sans-serif;
+  font-size: 12px;
+  padding: 30px;
+  border-radius: 4px;
+}
+
+.modal-actions {
+  margin-top: 35px;
+}
+
+.remove-modal-cancel {
+  background-color: white;
+  color: black;
+  border: solid 1px black;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 12px;
+  cursor: pointer;
+  margin: 10px;
+  text-decoration: none;
+}
+
+.remove-modal-confirm {
+  background-color: black;
+  color: white;
+  border: solid 1px black;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 10px;
+  text-decoration: none;
+}
+
 /* There is a new @media rule for only screen and min-width 768px */
 @media only screen and (max-width: 400px) {
   .header-container {

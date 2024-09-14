@@ -6,6 +6,8 @@ let data = {
 
 let favorites: string[] = readFavorites();
 
+let pendingDeletion: string = '';
+
 let selectedSeason = '20242025';
 
 //List of current NHL teams used to filter out old teams from the data returned from the API
@@ -119,6 +121,7 @@ function updateDOMTeams(teams: Teams[]): void {
         updateTeams();
       } else {
         showconfirmation(abbreviation);
+        pendingdelete(abbreviation);
       }
     });
 
@@ -275,6 +278,7 @@ function viewSwap(viewName: string) {
 function showconfirmation(abbreviation: string) {
   const $dialog = document.querySelector('dialog');
   if (!$dialog) throw new Error('$dialog does not exist');
+
   $dialog.showModal();
 }
 
@@ -332,4 +336,22 @@ function updateFavoriteIcons() {
       }
     }
   }
+}
+
+//Store team that is pending deletion from favorites
+function pendingdelete(abbreviation: string) {
+  pendingDeletion = abbreviation;
+}
+
+//Removed team from favorites
+function removeFavorites(pendingDeletion: string) {
+  const currentFavorites: string[] = readFavorites();
+
+  for (let i=0; i<currentFavorites.length; i++){
+    if (currentFavorites[i] === pendingDeletion) {
+      currentFavorites.splice(i,1);
+    }
+  }
+
+  return currentFavorites;
 }
