@@ -4,6 +4,7 @@ let data = {
     view: 'teams',
 };
 let favorites = readFavorites();
+let pendingDeletion = '';
 let selectedSeason = '20242025';
 //List of current NHL teams used to filter out old teams from the data returned from the API
 const nhlTeams = [
@@ -105,6 +106,7 @@ function updateDOMTeams(teams) {
             }
             else {
                 showconfirmation(abbreviation);
+                pendingdelete(abbreviation);
             }
         });
         $actionsCell.appendChild($faveButton);
@@ -288,4 +290,18 @@ function updateFavoriteIcons() {
             }
         }
     }
+}
+//Store team that is pending deletion from favorites
+function pendingdelete(abbreviation) {
+    pendingDeletion = abbreviation;
+}
+//Removed team from favorites
+function removeFavorites(pendingDeletion) {
+    const currentFavorites = readFavorites();
+    for (let i = 0; i < currentFavorites.length; i++) {
+        if (currentFavorites[i] === pendingDeletion) {
+            currentFavorites.splice(i, 1);
+        }
+    }
+    return currentFavorites;
 }
