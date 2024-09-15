@@ -44,6 +44,30 @@ interface TeamLookup {
   abbrev: string;
 }
 
+interface Statistics {
+  gamedate: string;
+  gameid: string;
+  awayteamcode: string;
+  awayteamlogo: string;
+  awayteamscore: number;
+  hometeamcode: string;
+  hometeamlogo: string;
+  hometeamscore: number;
+  venuename: string;
+  awayteamSOG: number;
+  hometeamSOG: number;
+  awayteamFaceOff: number;
+  hometeamFaceOff: number;
+  awayteamPP: string;
+  hometeamPP: string;
+  awayteamPIM: number;
+  hometeamPIM: number;
+  awayteamHits: number;
+  hometeamHits: number;
+  awayteamBlocked: number;
+  hometeamBlocked: number;
+}
+
 //Get teams from API
 var targetUrlTeams = encodeURIComponent(
   'https://api.nhle.com/stats/rest/en/team',
@@ -135,16 +159,48 @@ async function fetchSchedule(abbreviation: string, season: string) {
   }
 }
 
+//Get statistics from API
+async function fetchStatistics(gameid: string) {
+  const gameidStats = gameid;
+  const URLSchedule = `https://api-web.nhle.com/v1/gamecenter/${gameidStats}/boxscore`;
+
+  var targetUrlSchedule = encodeURIComponent(URLSchedule);
+
+  try {
+    const responseSchedule = await fetch(
+      'https://cors.learningfuze.com?url=' + targetUrlSchedule,
+      {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+        },
+      },
+    );
+
+    if (!responseSchedule.ok) {
+      throw new Error(`HTTP error! Status: ${responseSchedule.status}`);
+    }
+
+    const arrayStatistics = await responseSchedule.json();
+
+    return arrayStatistics;
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
 // Initialize the teams list on page load
 document.addEventListener('DOMContentLoaded', () => {
   const selectedseason = readSeason();
   const currentview = readDataView();
+  const stisticsGameId = readStatisticsGameId();
   const schedulefullname = getFullName(scheduleteam);
   populateTeamsDropdown(scheduleteam);
   updateSchedule(schedulefullname, scheduleteam, selectedseason);
   updateTeams();
   const rosterFullName = getFullName(rosterteam);
   updateRoster(rosterFullName, rosterteam, selectedseason);
+  updateStatistics(stisticsGameId);
 
   // Get reference to the season dropdown
   const selectElement = document.getElementById(
@@ -314,6 +370,38 @@ async function updateSchedule(
   updateDOMSchedule(nhlteamSchedule);
   populateScheduleSeasonDropdown(selectedSeason);
   populateTeamsDropdown(abbreviation);
+}
+
+//Populate statistic data from the API
+async function updateStatistics(gameid: string) {
+  const gamestatistics = await fetchStatistics(gameid); // Wait for the promise to resolve
+
+  const nhlgamestats: Statistics = {
+    gamedate: gamestatistics.gameDate,
+    gameid: gamestatistics.id,
+    awayteamcode: gamestatistics.awayTeam.abbrev,
+    awayteamlogo: gamestatistics.awayTeam.logo,
+    awayteamscore: gamestatistics.awayTeam.score,
+    hometeamcode: gamestatistics.homeTeam.abbrev,
+    hometeamlogo: gamestatistics.homeTeam.logo,
+    hometeamscore: gamestatistics.homeTeam.score,
+    venuename: gamestatistics.venue.default,
+    awayteamSOG: gamestatistics.awayTeam.sog,
+    hometeamSOG: gamestatistics.homeTeam.sog,
+    awayteamFaceOff: gamestatistics.summary.teamGameStats[1].awayValue,
+    hometeamFaceOff: gamestatistics.summary.teamGameStats[1].homeValue,
+    awayteamPP: gamestatistics.summary.teamGameStats[2].awayValue,
+    hometeamPP: gamestatistics.summary.teamGameStats[2].homeValue,
+    awayteamPIM: gamestatistics.summary.teamGameStats[4].awayValue,
+    hometeamPIM: gamestatistics.summary.teamGameStats[4].homeValue,
+    awayteamHits: gamestatistics.summary.teamGameStats[5].awayValue,
+    hometeamHits: gamestatistics.summary.teamGameStats[5].homeValue,
+    awayteamBlocked: gamestatistics.summary.teamGameStats[6].awayValue,
+    hometeamBlocked: gamestatistics.summary.teamGameStats[6].homeValue,
+  };
+
+  updateDOMStatistics(nhlgamestats);
+  writeStatisticsGameId(gameid);
 }
 
 //Add click event listener to close out the confirmation modal

@@ -159,6 +159,28 @@ tbody tr:nth-child(even) {
   background-color: lightgray;
 }
 
+.stats-table {
+  width: 75%;
+  padding: 10px;
+  border: none; /* Remove all borders */
+}
+
+.stats-table th {
+  border: none; /* Remove all borders */
+}
+
+.stats-table td {
+  border-top: 1px solid lightgray; /* Ensure no borders for cells */
+  border-bottom: none;
+  border-right: none;
+  border-left: none;
+}
+
+
+.stats-table tbody tr:nth-child(even) {
+  background-color: white;
+}
+
 .fa-regular.fa-star,
 .fa-solid.fa-star {
   text-decoration: none;

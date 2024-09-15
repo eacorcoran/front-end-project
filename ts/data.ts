@@ -14,6 +14,8 @@ let rosterteam: string = readRoster();
 
 let scheduleteam: string = readScheduleTeam();
 
+let gameid: string = readStatisticsGameId();
+
 //List of current NHL teams used to filter out old teams from the data returned from the API
 const nhlTeams: string[] = [
   'DET',
@@ -352,10 +354,50 @@ function updateDOMSchedule(nhlteamSchedule: Schedule[]): void {
     $keyStatsLink.addEventListener('click', (event) => {
       event.preventDefault();
       const gameid = nhlteamSchedule[i].gameid;
-      console.log(gameid);
+      updateStatistics(gameid);
+      writeStatisticsGameId(gameid);
       viewSwap('key-stats');
     });
   }
+}
+
+// Function to update the DOM with roster data
+function updateDOMStatistics(nhlgamestats: Statistics): void {
+  const $table = document.querySelector('.stats-table');
+  if (!$table) throw new Error('The $table query failed');
+
+  // Find the tbody element within the table
+  const $tbody = $table.querySelector('tbody');
+  if (!$tbody) throw new Error('The tbody query failed');
+
+  //Score Updates
+  $tbody.rows[0].cells[1].innerHTML = nhlgamestats.awayteamscore.toString();
+  $tbody.rows[0].cells[2].innerHTML = nhlgamestats.hometeamscore.toString();
+
+  //SOG Updates
+  $tbody.rows[1].cells[1].innerHTML = nhlgamestats.awayteamSOG.toString();
+  $tbody.rows[1].cells[2].innerHTML = nhlgamestats.hometeamSOG.toString();
+
+  //Face Off Winning % Updates
+  $tbody.rows[2].cells[1].innerHTML = (nhlgamestats.awayteamFaceOff*100).toFixed(2).toString()+'%';
+  $tbody.rows[2].cells[2].innerHTML =
+    (nhlgamestats.hometeamFaceOff * 100).toFixed(2).toString() + '%';
+
+  //Power Play Updates
+  $tbody.rows[3].cells[1].innerHTML = nhlgamestats.awayteamPP;
+  $tbody.rows[3].cells[2].innerHTML = nhlgamestats.hometeamPP;
+
+  //Penalty Infraction Minutes Updates
+  $tbody.rows[4].cells[1].innerHTML = nhlgamestats.awayteamPIM.toString();
+  $tbody.rows[4].cells[2].innerHTML = nhlgamestats.hometeamPIM.toString();
+
+  //Hits Updates
+  $tbody.rows[5].cells[1].innerHTML = nhlgamestats.awayteamHits.toString();
+  $tbody.rows[5].cells[2].innerHTML = nhlgamestats.hometeamHits.toString();
+
+  //Blocked Shots Updates
+  $tbody.rows[6].cells[1].innerHTML = nhlgamestats.awayteamBlocked.toString();
+  $tbody.rows[6].cells[2].innerHTML = nhlgamestats.hometeamBlocked.toString();
 }
 
 // function to swap views between schedule, teams, roster, and statistics
@@ -620,6 +662,23 @@ function readScheduleTeam(): string {
     scheduleteam = readJSON;
   }
   return scheduleteam;
+}
+
+//write season to local storage so that it can be used
+function writeStatisticsGameId(gameid: string): void {
+  localStorage.setItem('stats-game', gameid);
+}
+
+//read data-view from local storage so that it is utilized after a page refresh
+function readStatisticsGameId(): string {
+  let statsGame: string = '';
+  const readJSON = localStorage.getItem('stats-game');
+  if (readJSON === null) {
+    statsGame = '';
+  } else {
+    statsGame = readJSON;
+  }
+  return statsGame;
 }
 
 function clearSchedule() {
