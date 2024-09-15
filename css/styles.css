@@ -160,7 +160,7 @@ tbody tr:nth-child(even) {
 }
 
 .stats-table {
-  width: 75%;
+  width: 50%;
   padding: 10px;
   border: none; /* Remove all borders */
 }
@@ -176,6 +176,17 @@ tbody tr:nth-child(even) {
   border-left: none;
 }
 
+.stats-table th:nth-child(1),
+.stats-table td:nth-child(1) {
+  width: 40%; /* First column width */
+}
+
+.stats-table th:nth-child(2),
+.stats-table td:nth-child(2),
+.stats-table th:nth-child(3),
+.stats-table td:nth-child(3), {
+  width: 30%;
+}
 
 .stats-table tbody tr:nth-child(even) {
   background-color: white;
@@ -241,6 +252,10 @@ dialog {
   transition: background-color 0.3s ease;
   margin: 10px;
   text-decoration: none;
+}
+
+.stats-section {
+  text-align: center;
 }
 
 /* There is a new @media rule for only screen and min-width 768px */
