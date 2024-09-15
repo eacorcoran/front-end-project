@@ -325,7 +325,7 @@ function updateDOMStatistics(nhlgamestats) {
     const $statsHeader = document.querySelector('.stats-section');
     if (!$statsHeader)
         throw new Error('$statsHeader is not available');
-    $statsHeader.innerHTML = `${awayteamName} @ ${hometeamName}<br>${formatdate}<br>${nhlgamestats.venuename}`;
+    $statsHeader.innerHTML = `${awayteamName}<br>@ ${hometeamName}<br>${formatdate}<br>${nhlgamestats.venuename}`;
     //Find the table element
     const $table = document.querySelector('.stats-table');
     if (!$table)
