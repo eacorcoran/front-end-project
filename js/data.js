@@ -47,6 +47,7 @@ const nhlTeamFullName = [
     { fullname: 'Anaheim Ducks', abbrev: 'ANA' },
     { fullname: 'Boston Bruins', abbrev: 'BOS' },
     { fullname: 'Buffalo Sabres', abbrev: 'BUF' },
+    { fullname: 'Carolina Hurricanes', abbrev: 'CAR' },
     { fullname: 'Calgary Flames', abbrev: 'CGY' },
     { fullname: 'Chicago Blackhawks', abbrev: 'CHI' },
     { fullname: 'Colorado Avalanche', abbrev: 'COL' },
@@ -57,6 +58,7 @@ const nhlTeamFullName = [
     { fullname: 'Florida Panthers', abbrev: 'FLA' },
     { fullname: 'Los Angeles Kings', abbrev: 'LAK' },
     { fullname: 'Minnesota Wild', abbrev: 'MIN' },
+    { fullname: 'Montréal Canadiens', abbrev: 'MTL' },
     { fullname: 'Nashville Predators', abbrev: 'NSH' },
     { fullname: 'New Jersey Devils', abbrev: 'NJD' },
     { fullname: 'New York Islanders', abbrev: 'NYI' },
@@ -221,23 +223,82 @@ function updateDOMSchedule(nhlteamSchedule) {
         const $row = $tbody.insertRow();
         // Create cells for each row
         const $gameidCell = $row.insertCell();
-        $gameidCell.textContent = nhlteamSchedule[i].gameid;
+        $gameidCell.textContent = (i + 1).toString();
         const $awayTeamCell = $row.insertCell();
+        $awayTeamCell.innerHTML = getFullName(nhlteamSchedule[i].awayteamcode) + '<br>';
         const $awayteamimage = document.createElement('img');
         $awayteamimage.src = nhlteamSchedule[i].awayteamlogo;
         $awayTeamCell.appendChild($awayteamimage);
         const $homeTeamCell = $row.insertCell();
+        $homeTeamCell.innerHTML =
+            '@ ' + getFullName(nhlteamSchedule[i].hometeamcode) + '<br>';
         const $hometeamimage = document.createElement('img');
         $hometeamimage.src = nhlteamSchedule[i].hometeamlogo;
         $homeTeamCell.appendChild($hometeamimage);
+        const formatdate = nhlteamSchedule[i].gamedate.slice(5, 7) +
+            '/' +
+            nhlteamSchedule[i].gamedate.slice(8, 10) +
+            '/' +
+            nhlteamSchedule[i].gamedate.slice(0, 4);
+        const offsetVenue = Number(nhlteamSchedule[i].venuetime.slice(0, 3));
+        const utchours = Number(nhlteamSchedule[i].starttime.slice(11, 13));
+        let localhours = '';
+        if (utchours + offsetVenue > 0) {
+            localhours = (utchours + offsetVenue - 12).toString();
+        }
+        else {
+            localhours = (utchours + 24 + offsetVenue - 12).toString();
+        }
         const $dateCell = $row.insertCell();
-        $dateCell.textContent = nhlteamSchedule[i].starttime;
+        $dateCell.innerHTML =
+            formatdate +
+                ' <br>' +
+                localhours +
+                ':' +
+                nhlteamSchedule[i].starttime.slice(14, 16) +
+                ' PM';
+        let score = '';
+        if (nhlteamSchedule[i].awayteamscore > nhlteamSchedule[i].hometeamscore) {
+            score =
+                nhlteamSchedule[i].awayteamcode +
+                    ' (W): ' +
+                    nhlteamSchedule[i].awayteamscore +
+                    '<br><br>' +
+                    nhlteamSchedule[i].hometeamcode +
+                    ' (L): ' +
+                    nhlteamSchedule[i].hometeamscore;
+        }
+        else if (nhlteamSchedule[i].awayteamscore < nhlteamSchedule[i].hometeamscore) {
+            score =
+                nhlteamSchedule[i].awayteamcode +
+                    ' (L): ' +
+                    nhlteamSchedule[i].awayteamscore +
+                    '<br><br>' +
+                    nhlteamSchedule[i].hometeamcode +
+                    ' (W): ' +
+                    nhlteamSchedule[i].hometeamscore;
+        }
+        else if (nhlteamSchedule[i].awayteamscore === nhlteamSchedule[i].hometeamscore &&
+            nhlteamSchedule[i].awayteamscore > 0) {
+            score =
+                nhlteamSchedule[i].awayteamcode +
+                    ' (Tie): ' +
+                    nhlteamSchedule[i].awayteamscore +
+                    '<br><br>' +
+                    nhlteamSchedule[i].hometeamcode +
+                    ' (Tie): ' +
+                    nhlteamSchedule[i].hometeamscore;
+        }
         const $scoreCell = $row.insertCell();
-        $scoreCell.textContent =
-            nhlteamSchedule[i].awayteamscore + '-' + nhlteamSchedule[i].hometeamscore;
+        $scoreCell.innerHTML = score;
         const $venueCell = $row.insertCell();
         $venueCell.textContent = nhlteamSchedule[i].venuename;
-        const $linkCell = $row.insertCell();
+        const $keyStatsCell = $row.insertCell();
+        const $keyStatsLink = document.createElement('a');
+        $keyStatsLink.href = '#';
+        $keyStatsLink.textContent = 'Key Statistics';
+        $keyStatsLink.className = 'key-stats-link';
+        $keyStatsCell.appendChild($keyStatsLink);
     }
 }
 // function to swap views between schedule, teams, roster, and statistics
@@ -461,4 +522,12 @@ function clearSchedule() {
     while ($tbody.rows.length > 0) {
         $tbody.deleteRow(0);
     }
+}
+//Convert UTC with offset
+function convertUTCDateWithOffset(utcDate, offsetHours) {
+    const utcTime = utcDate.getTime();
+    const offsetMilliseconds = offsetHours * 60 * 60 * 1000;
+    const venueTime = utcTime + offsetMilliseconds;
+    const venuetimedate = new Date(venueTime);
+    return venuetimedate.toLocaleString();
 }

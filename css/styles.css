@@ -145,13 +145,14 @@ table {
   width: 90%;
   border-collapse: collapse;
   margin: auto;
+  justify-content: center;
+  text-align: center;
 }
 
 th,
 td {
   padding: 10px;
   border: 1px solid black;
-  text-align: center;
 }
 
 tbody tr:nth-child(even) {
@@ -269,8 +270,12 @@ dialog {
     border: none;
     padding: 10px;
     position: relative;
-    white-space: nowrap;
     text-align: center;
+  }
+
+  table td img{
+    margin: 20px;
+    height: 150px;
   }
 
   table td::before {
@@ -303,4 +308,9 @@ dialog {
   .right-footer {
     display: none;
   }
+
+   table td img{
+    width: 65%;
+  }
+
 }

@@ -25,6 +25,7 @@ interface Roster {
 }
 
 interface Schedule {
+  gamedate: string;
   season: string;
   gameid: string;
   awayteamcode: string;
@@ -295,6 +296,7 @@ async function updateSchedule(
     const schedulecount = schedule.games[i];
 
     nhlteamSchedule.push({
+      gamedate: schedulecount.gameDate,
       season: schedulecount.season,
       gameid: schedulecount.id,
       awayteamcode: schedulecount.awayTeam.abbrev,

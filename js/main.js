@@ -190,6 +190,7 @@ async function updateSchedule(fullteamname, abbreviation, season) {
     for (let i = 0; i < schedule.games.length; i++) {
         const schedulecount = schedule.games[i];
         nhlteamSchedule.push({
+            gamedate: schedulecount.gameDate,
             season: schedulecount.season,
             gameid: schedulecount.id,
             awayteamcode: schedulecount.awayTeam.abbrev,
