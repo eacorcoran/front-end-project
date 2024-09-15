@@ -225,7 +225,8 @@ function updateDOMSchedule(nhlteamSchedule) {
         const $gameidCell = $row.insertCell();
         $gameidCell.textContent = (i + 1).toString();
         const $awayTeamCell = $row.insertCell();
-        $awayTeamCell.innerHTML = getFullName(nhlteamSchedule[i].awayteamcode) + '<br>';
+        $awayTeamCell.innerHTML =
+            getFullName(nhlteamSchedule[i].awayteamcode) + '<br>';
         const $awayteamimage = document.createElement('img');
         $awayteamimage.src = nhlteamSchedule[i].awayteamlogo;
         $awayTeamCell.appendChild($awayteamimage);
@@ -299,6 +300,13 @@ function updateDOMSchedule(nhlteamSchedule) {
         $keyStatsLink.textContent = 'Key Statistics';
         $keyStatsLink.className = 'key-stats-link';
         $keyStatsCell.appendChild($keyStatsLink);
+        // Add click event listener to the key stats link
+        $keyStatsLink.addEventListener('click', (event) => {
+            event.preventDefault();
+            const gameid = nhlteamSchedule[i].gameid;
+            console.log(gameid);
+            viewSwap('key-stats');
+        });
     }
 }
 // function to swap views between schedule, teams, roster, and statistics
@@ -306,6 +314,7 @@ function viewSwap(viewName) {
     const $teams = document.querySelector("div[data-view='teams']");
     const $roster = document.querySelector("div[data-view='roster']");
     const $schedule = document.querySelector("div[data-view='schedule']");
+    const $stats = document.querySelector("div[data-view='key-stats']");
     const $scheduleNoUnderline = document.querySelector('.header-links-schedule');
     const $scheduleUnderline = document.querySelector('.header-links-schedule-underlined');
     const $teamNoUnderline = document.querySelector('.header-links-team');
@@ -316,9 +325,12 @@ function viewSwap(viewName) {
         throw new Error('$roster is null');
     if (!$schedule)
         throw new Error('$schedule is null');
+    if (!$stats)
+        throw new Error('$stats is null');
     if (viewName === 'teams') {
         $roster.setAttribute('class', 'hidden');
         $schedule.setAttribute('class', 'hidden');
+        $stats.setAttribute('class', 'hidden');
         $teams.setAttribute('class', '');
         data.view = 'teams';
         localStorage.setItem('data-view', data.view);
@@ -328,6 +340,7 @@ function viewSwap(viewName) {
     else if (viewName === 'roster') {
         $teams.setAttribute('class', 'hidden');
         $schedule.setAttribute('class', 'hidden');
+        $stats.setAttribute('class', 'hidden');
         $roster.setAttribute('class', '');
         data.view = 'roster';
         localStorage.setItem('data-view', data.view);
@@ -337,10 +350,21 @@ function viewSwap(viewName) {
     else if (viewName === 'schedule') {
         $teams.setAttribute('class', 'hidden');
         $roster.setAttribute('class', 'hidden');
+        $stats.setAttribute('class', 'hidden');
         $schedule.setAttribute('class', '');
         data.view = 'schedule';
         localStorage.setItem('data-view', data.view);
         $scheduleNoUnderline?.setAttribute('class', 'header-links-schedule-underlined');
+        $teamUnderline?.setAttribute('class', 'header-links-team');
+    }
+    else if (viewName === 'key-stats') {
+        $teams.setAttribute('class', 'hidden');
+        $roster.setAttribute('class', 'hidden');
+        $schedule.setAttribute('class', 'hidden');
+        $stats.setAttribute('class', '');
+        data.view = 'key-stats';
+        localStorage.setItem('data-view', data.view);
+        $scheduleUnderline?.setAttribute('class', 'header-links-schedule');
         $teamUnderline?.setAttribute('class', 'header-links-team');
     }
 }
