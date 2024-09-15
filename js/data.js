@@ -1,11 +1,13 @@
 "use strict";
 /* exported data */
 let data = {
-    view: 'teams',
+    view: readDataView(),
 };
 let favorites = readFavorites();
 let pendingDeletion = '';
-let selectedSeason = '20242025';
+let selectedSeason = readSeason();
+let rosterteam = readRoster();
+let scheduleteam = readScheduleTeam();
 //List of current NHL teams used to filter out old teams from the data returned from the API
 const nhlTeams = [
     'DET',
@@ -41,6 +43,41 @@ const nhlTeams = [
     'CAR',
     'MTL',
 ];
+const nhlTeamFullName = [
+    { fullname: 'Anaheim Ducks', abbrev: 'ANA' },
+    { fullname: 'Boston Bruins', abbrev: 'BOS' },
+    { fullname: 'Buffalo Sabres', abbrev: 'BUF' },
+    { fullname: 'Carolina Hurricanes', abbrev: 'CAR' },
+    { fullname: 'Calgary Flames', abbrev: 'CGY' },
+    { fullname: 'Chicago Blackhawks', abbrev: 'CHI' },
+    { fullname: 'Colorado Avalanche', abbrev: 'COL' },
+    { fullname: 'Columbus Blue Jackets', abbrev: 'CBJ' },
+    { fullname: 'Dallas Stars', abbrev: 'DAL' },
+    { fullname: 'Detroit Red Wings', abbrev: 'DET' },
+    { fullname: 'Edmonton Oilers', abbrev: 'EDM' },
+    { fullname: 'Florida Panthers', abbrev: 'FLA' },
+    { fullname: 'Los Angeles Kings', abbrev: 'LAK' },
+    { fullname: 'Minnesota Wild', abbrev: 'MIN' },
+    { fullname: 'Montréal Canadiens', abbrev: 'MTL' },
+    { fullname: 'Nashville Predators', abbrev: 'NSH' },
+    { fullname: 'New Jersey Devils', abbrev: 'NJD' },
+    { fullname: 'New York Islanders', abbrev: 'NYI' },
+    { fullname: 'New York Rangers', abbrev: 'NYR' },
+    { fullname: 'Ottawa Senators', abbrev: 'OTT' },
+    { fullname: 'Philadelphia Flyers', abbrev: 'PHI' },
+    { fullname: 'Pittsburgh Penguins', abbrev: 'PIT' },
+    { fullname: 'San Jose Sharks', abbrev: 'SJS' },
+    { fullname: 'Seattle Kraken', abbrev: 'SEA' },
+    { fullname: 'St. Louis Blues', abbrev: 'STL' },
+    { fullname: 'Tampa Bay Lightning', abbrev: 'TBL' },
+    { fullname: 'Toronto Maple Leafs', abbrev: 'TOR' },
+    { fullname: 'Utah Hockey Club', abbrev: 'UTA' },
+    { fullname: 'Vancouver Canucks', abbrev: 'VAN' },
+    { fullname: 'Vegas Golden Knights', abbrev: 'VGK' },
+    { fullname: 'Washington Capitals', abbrev: 'WSH' },
+    { fullname: 'Winnipeg Jets', abbrev: 'WPG' },
+    { fullname: '', abbrev: '' },
+];
 // Function to update the DOM with team data
 function updateDOMTeams(teams) {
     const $table = document.querySelector('.teams-table');
@@ -74,6 +111,7 @@ function updateDOMTeams(teams) {
             const abbreviation = $abbreviationCell.textContent ?? '';
             const fullteamname = $teamNameCell.textContent ?? '';
             updateRoster(fullteamname, abbreviation, selectedSeason);
+            writeRoster(abbreviation);
             viewSwap('roster');
         });
         $rosterCell.appendChild($rosterLink);
@@ -87,7 +125,11 @@ function updateDOMTeams(teams) {
             event.preventDefault();
             const abbreviation = $abbreviationCell.textContent ?? '';
             const fullteamname = $teamNameCell.textContent ?? '';
+            scheduleteam = abbreviation;
+            writeScheduleTeam(abbreviation);
             updateSchedule(fullteamname, abbreviation, selectedSeason);
+            populateScheduleSeasonDropdown(selectedSeason);
+            populateTeamsDropdown(abbreviation);
             viewSwap('schedule');
         });
         $scheduleCell.appendChild($scheduleLink);
@@ -143,7 +185,7 @@ function updateDOMRoster(nhlteamRoster) {
         $playerimage.src = nhlteamRoster[i].image;
         $playerimageCell.appendChild($playerimage);
         const $jerseyCell = $row.insertCell();
-        $jerseyCell.textContent = nhlteamRoster[i].jersey;
+        $jerseyCell.textContent = '#' + nhlteamRoster[i].jersey;
         const $fullNameCell = $row.insertCell();
         $fullNameCell.textContent = nhlteamRoster[i].fullname;
         const $positionCell = $row.insertCell();
@@ -181,35 +223,93 @@ function updateDOMSchedule(nhlteamSchedule) {
         const $row = $tbody.insertRow();
         // Create cells for each row
         const $gameidCell = $row.insertCell();
-        $gameidCell.textContent = nhlteamSchedule[i].gameid;
+        $gameidCell.textContent = (i + 1).toString();
         const $awayTeamCell = $row.insertCell();
+        $awayTeamCell.innerHTML = getFullName(nhlteamSchedule[i].awayteamcode) + '<br>';
         const $awayteamimage = document.createElement('img');
         $awayteamimage.src = nhlteamSchedule[i].awayteamlogo;
         $awayTeamCell.appendChild($awayteamimage);
         const $homeTeamCell = $row.insertCell();
+        $homeTeamCell.innerHTML =
+            '@ ' + getFullName(nhlteamSchedule[i].hometeamcode) + '<br>';
         const $hometeamimage = document.createElement('img');
         $hometeamimage.src = nhlteamSchedule[i].hometeamlogo;
         $homeTeamCell.appendChild($hometeamimage);
+        const formatdate = nhlteamSchedule[i].gamedate.slice(5, 7) +
+            '/' +
+            nhlteamSchedule[i].gamedate.slice(8, 10) +
+            '/' +
+            nhlteamSchedule[i].gamedate.slice(0, 4);
+        const offsetVenue = Number(nhlteamSchedule[i].venuetime.slice(0, 3));
+        const utchours = Number(nhlteamSchedule[i].starttime.slice(11, 13));
+        let localhours = '';
+        if (utchours + offsetVenue > 0) {
+            localhours = (utchours + offsetVenue - 12).toString();
+        }
+        else {
+            localhours = (utchours + 24 + offsetVenue - 12).toString();
+        }
         const $dateCell = $row.insertCell();
-        $dateCell.textContent = nhlteamSchedule[i].starttime;
+        $dateCell.innerHTML =
+            formatdate +
+                ' <br>' +
+                localhours +
+                ':' +
+                nhlteamSchedule[i].starttime.slice(14, 16) +
+                ' PM';
+        let score = '';
+        if (nhlteamSchedule[i].awayteamscore > nhlteamSchedule[i].hometeamscore) {
+            score =
+                nhlteamSchedule[i].awayteamcode +
+                    ' (W): ' +
+                    nhlteamSchedule[i].awayteamscore +
+                    '<br><br>' +
+                    nhlteamSchedule[i].hometeamcode +
+                    ' (L): ' +
+                    nhlteamSchedule[i].hometeamscore;
+        }
+        else if (nhlteamSchedule[i].awayteamscore < nhlteamSchedule[i].hometeamscore) {
+            score =
+                nhlteamSchedule[i].awayteamcode +
+                    ' (L): ' +
+                    nhlteamSchedule[i].awayteamscore +
+                    '<br><br>' +
+                    nhlteamSchedule[i].hometeamcode +
+                    ' (W): ' +
+                    nhlteamSchedule[i].hometeamscore;
+        }
+        else if (nhlteamSchedule[i].awayteamscore === nhlteamSchedule[i].hometeamscore &&
+            nhlteamSchedule[i].awayteamscore > 0) {
+            score =
+                nhlteamSchedule[i].awayteamcode +
+                    ' (Tie): ' +
+                    nhlteamSchedule[i].awayteamscore +
+                    '<br><br>' +
+                    nhlteamSchedule[i].hometeamcode +
+                    ' (Tie): ' +
+                    nhlteamSchedule[i].hometeamscore;
+        }
         const $scoreCell = $row.insertCell();
-        $scoreCell.textContent =
-            nhlteamSchedule[i].awayteamscore + '-' + nhlteamSchedule[i].hometeamscore;
+        $scoreCell.innerHTML = score;
         const $venueCell = $row.insertCell();
         $venueCell.textContent = nhlteamSchedule[i].venuename;
-        const $linkCell = $row.insertCell();
+        const $keyStatsCell = $row.insertCell();
+        const $keyStatsLink = document.createElement('a');
+        $keyStatsLink.href = '#';
+        $keyStatsLink.textContent = 'Key Statistics';
+        $keyStatsLink.className = 'key-stats-link';
+        $keyStatsCell.appendChild($keyStatsLink);
     }
-    const $scheduleHeader = document.querySelector('.schedule-section');
-    if (!$scheduleHeader)
-        throw new Error('The $scheduleHeader query failed');
-    $scheduleHeader.textContent =
-        'Full Season Schedule (' + nhlteamSchedule[0].season + ')';
 }
 // function to swap views between schedule, teams, roster, and statistics
 function viewSwap(viewName) {
     const $teams = document.querySelector("div[data-view='teams']");
     const $roster = document.querySelector("div[data-view='roster']");
     const $schedule = document.querySelector("div[data-view='schedule']");
+    const $scheduleNoUnderline = document.querySelector('.header-links-schedule');
+    const $scheduleUnderline = document.querySelector('.header-links-schedule-underlined');
+    const $teamNoUnderline = document.querySelector('.header-links-team');
+    const $teamUnderline = document.querySelector('.header-links-team-underlined');
     if (!$teams)
         throw new Error('$teams is null');
     if (!$roster)
@@ -222,6 +322,8 @@ function viewSwap(viewName) {
         $teams.setAttribute('class', '');
         data.view = 'teams';
         localStorage.setItem('data-view', data.view);
+        $scheduleUnderline?.setAttribute('class', 'header-links-schedule');
+        $teamNoUnderline?.setAttribute('class', 'header-links-team-underlined');
     }
     else if (viewName === 'roster') {
         $teams.setAttribute('class', 'hidden');
@@ -229,6 +331,8 @@ function viewSwap(viewName) {
         $roster.setAttribute('class', '');
         data.view = 'roster';
         localStorage.setItem('data-view', data.view);
+        $teamUnderline?.setAttribute('class', 'header-links-team');
+        $scheduleUnderline?.setAttribute('class', 'header-links-schedule');
     }
     else if (viewName === 'schedule') {
         $teams.setAttribute('class', 'hidden');
@@ -236,6 +340,8 @@ function viewSwap(viewName) {
         $schedule.setAttribute('class', '');
         data.view = 'schedule';
         localStorage.setItem('data-view', data.view);
+        $scheduleNoUnderline?.setAttribute('class', 'header-links-schedule-underlined');
+        $teamUnderline?.setAttribute('class', 'header-links-team');
     }
 }
 //show favorites modal confirmation
@@ -304,4 +410,124 @@ function removeFavorites(pendingDeletion) {
         }
     }
     return currentFavorites;
+}
+//Populate team's dropdown on the schedules page with teams
+function populateTeamsDropdown(teamabbrev) {
+    const $teamdropdown = document.getElementById('teamName');
+    if (!$teamdropdown)
+        throw new Error('$teamdropdown is null');
+    // Clear existing options from dropdown
+    $teamdropdown.innerHTML = '';
+    // Create and append options based on nhlTeamFullName list
+    for (let i = 0; i < nhlTeamFullName.length; i++) {
+        const optionElement = document.createElement('option');
+        optionElement.value = nhlTeamFullName[i].abbrev;
+        optionElement.textContent = nhlTeamFullName[i].fullname;
+        $teamdropdown.appendChild(optionElement);
+    }
+    $teamdropdown.value = teamabbrev;
+}
+function populateScheduleSeasonDropdown(season) {
+    const $seasonScheduledropdown = document.getElementById('scheduleSeasonDropdown');
+    if (!$seasonScheduledropdown)
+        throw new Error('$seasonScheduledropdown is null');
+    $seasonScheduledropdown.value = season;
+    selectedSeason = season;
+    writeSeason(selectedSeason);
+}
+function populateSeasonDropdown(season) {
+    const $SeasonDropdown = document.getElementById('scheduleSeason');
+    if (!$SeasonDropdown)
+        throw new Error('$SeasonDropdown is null');
+    $SeasonDropdown.value = season;
+}
+//read data-view from local storage so that it is utilized after a page refresh
+function readDataView() {
+    let newdataview = '';
+    const readJSON = localStorage.getItem('data-view');
+    if (readJSON === null) {
+        newdataview = 'teams';
+    }
+    else {
+        newdataview = readJSON;
+    }
+    return newdataview;
+}
+//write season to local storage so that it can be used
+function writeSeason(selectedSeason) {
+    localStorage.setItem('season', selectedSeason);
+}
+//read data-view from local storage so that it is utilized after a page refresh
+function readSeason() {
+    let newseason = '';
+    const readJSON = localStorage.getItem('season');
+    if (readJSON === null) {
+        newseason = '20242025';
+    }
+    else {
+        newseason = readJSON;
+    }
+    return newseason;
+}
+//write season to local storage so that it can be used
+function writeRoster(abbrev) {
+    localStorage.setItem('roster-team', abbrev);
+}
+//read data-view from local storage so that it is utilized after a page refresh
+function readRoster() {
+    let roster = '';
+    const readJSON = localStorage.getItem('roster-team');
+    if (readJSON === null) {
+        roster = '';
+    }
+    else {
+        roster = readJSON;
+    }
+    return roster;
+}
+function getFullName(abbrev) {
+    let fullTeamName = '';
+    for (let i = 0; i < nhlTeamFullName.length; i++) {
+        if (nhlTeamFullName[i].abbrev === abbrev) {
+            fullTeamName = nhlTeamFullName[i].fullname;
+        }
+    }
+    return fullTeamName;
+}
+//write season to local storage so that it can be used
+function writeScheduleTeam(abbrev) {
+    localStorage.setItem('schedule-team', abbrev);
+}
+//read data-view from local storage so that it is utilized after a page refresh
+function readScheduleTeam() {
+    let scheduleteam = '';
+    const readJSON = localStorage.getItem('schedule-team');
+    if (readJSON === null) {
+        scheduleteam = '';
+    }
+    else {
+        scheduleteam = readJSON;
+    }
+    return scheduleteam;
+}
+function clearSchedule() {
+    const $table = document.querySelector('.schedule-table');
+    if (!$table)
+        throw new Error('The $table query failed');
+    // Find the tbody element within the table
+    const $tbody = $table.querySelector('tbody');
+    if (!$tbody)
+        throw new Error('The tbody query failed');
+    // Clear existing rows in the tbody
+    while ($tbody.rows.length > 0) {
+        $tbody.deleteRow(0);
+    }
+}
+//Convert UTC with offset
+function convertUTCDateWithOffset(utcDate, offsetHours) {
+    const utcTime = utcDate.getTime();
+    const offsetMilliseconds = offsetHours * 60 * 60 * 1000;
+    const venueTime = utcTime + offsetMilliseconds;
+    const venuetimedate = new Date(venueTime);
+    return venuetimedate.toLocaleString();
 }

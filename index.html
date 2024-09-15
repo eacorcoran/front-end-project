@@ -27,11 +27,11 @@
                 src="https://seeklogo.com/images/N/national-hockey-league-nhl-logo-DAC0622A6B-seeklogo.com.png"
                 alt="nhl logo" />
             </div>
-            <div class="header-links-underlined">
-              <a href="">Teams</a>
+            <div class="header-links-team-underlined">
+              <a href="#" class="teams-header-link">Teams</a>
             </div>
-            <div class="header-links">
-              <a href="">Schedules</a>
+            <div class="header-links-schedule">
+              <a href="#" class="schedule-header-link">Schedules</a>
             </div>
           </div>
           <div class="right-header">
@@ -117,15 +117,31 @@
       </div>
       <div data-view="schedule" class="hidden">
         <div id="schedule-container">
-          <h1 class="schedule-section"></h1>
+          <label for="teamName">Team Name</label>
+          <select id="teamName"></select>
+          <label for="scheduleSeasonDropdown">Season</label>
+          <select id="scheduleSeasonDropdown">
+            <option value="20242025">2024-2025</option>
+            <option value="20232024">2023-2024</option>
+            <option value="20222023">2022-2023</option>
+            <option value="20212022">2021-2022</option>
+            <option value="20202021">2020-2021</option>
+            <option value="20192020">2019-2020</option>
+            <option value="20182019">2018-2019</option>
+            <option value="20172018">2017-2018</option>
+            <option value="20162017">2016-2017</option>
+            <option value="20152016">2015-2016</option>
+            <option value="20142015">2014-2015</option>
+          </select>
+          <h1 class="schedule-section">Season Schedule</h1>
           <table class="schedule-table">
             <thead>
               <tr>
                 <th>Game</th>
                 <th>Away Team</th>
                 <th>Home Team</th>
-                <th>Date/Time</th>
-                <th>Score (Away-Home)</th>
+                <th>Start Time at Venue</th>
+                <th>Score</th>
                 <th>Venue</th>
                 <th>Links</th>
               </tr>
