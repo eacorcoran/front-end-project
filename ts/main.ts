@@ -38,6 +38,11 @@ interface Schedule {
   starttime: string;
 }
 
+interface TeamLookup {
+  fullname: string;
+  abbrev: string;
+}
+
 //Get teams from API
 var targetUrlTeams = encodeURIComponent(
   'https://api.nhle.com/stats/rest/en/team',
@@ -295,6 +300,9 @@ async function updateSchedule(
   }
 
   updateDOMSchedule(nhlteamSchedule);
+
+  populateScheduleSeasonDropdown(selectedSeason);
+  populateTeamsDropdown(abbreviation);
 }
 
 //Add click event listener to close out the confirmation modal
@@ -302,7 +310,6 @@ const $cancelButton = document.querySelector('.remove-modal-cancel');
 if (!$cancelButton) throw new Error('$cancelButton is not available');
 
 $cancelButton.addEventListener('click', (event) => {
-
   const $dialog = document.querySelector('dialog');
   if (!$dialog) throw new Error('$dialog does not exist');
 
@@ -316,7 +323,6 @@ const $confirmButton = document.querySelector('.remove-modal-confirm');
 if (!$confirmButton) throw new Error('$confirmButton is not available');
 
 $confirmButton.addEventListener('click', (event) => {
-
   const $dialog = document.querySelector('dialog');
   if (!$dialog) throw new Error('$dialog does not exist');
 
@@ -330,4 +336,35 @@ $confirmButton.addEventListener('click', (event) => {
   updateTeams();
 
   $dialog.close();
+});
+
+// Add click event listener to the season and teams dropdown on the schedule page
+const $scheduleDropdownSchedule = document.getElementById(
+  'scheduleSeasonDropdown',
+) as HTMLSelectElement;
+if (!$scheduleDropdownSchedule) throw new Error('$scheduleDropdownSchedule is null');
+
+const $teamDropdownSchedule = document.getElementById(
+  'teamName',
+) as HTMLSelectElement;
+if (!$teamDropdownSchedule)
+  throw new Error('$scheduleDropdownSchedule is null');
+
+$scheduleDropdownSchedule.addEventListener('change', (event) => {
+  event.preventDefault();
+  const season = $scheduleDropdownSchedule.value;
+  const abbreviation = $teamDropdownSchedule.value;
+  const fullteamname = $teamDropdownSchedule.textContent ?? '';
+  selectedSeason = season;
+  updateSchedule(fullteamname, abbreviation, season);
+});
+
+
+$teamDropdownSchedule.addEventListener('change', (event) => {
+  event.preventDefault();
+  const season = $scheduleDropdownSchedule.value;
+  const abbreviation = $teamDropdownSchedule.value;
+  const fullteamname = $teamDropdownSchedule.textContent ?? '';
+  selectedSeason = season;
+  updateSchedule(fullteamname, abbreviation, season);
 });

@@ -46,6 +46,39 @@ const nhlTeams: string[] = [
   'MTL',
 ];
 
+const nhlTeamFullName: TeamLookup[] = [
+  { fullname: 'Anaheim Ducks', abbrev: 'ANA' },
+  { fullname: 'Boston Bruins', abbrev: 'BOS' },
+  { fullname: 'Buffalo Sabres', abbrev: 'BUF' },
+  { fullname: 'Calgary Flames', abbrev: 'CGY' },
+  { fullname: 'Chicago Blackhawks', abbrev: 'CHI' },
+  { fullname: 'Colorado Avalanche', abbrev: 'COL' },
+  { fullname: 'Columbus Blue Jackets', abbrev: 'CBJ' },
+  { fullname: 'Dallas Stars', abbrev: 'DAL' },
+  { fullname: 'Detroit Red Wings', abbrev: 'DET' },
+  { fullname: 'Edmonton Oilers', abbrev: 'EDM' },
+  { fullname: 'Florida Panthers', abbrev: 'FLA' },
+  { fullname: 'Los Angeles Kings', abbrev: 'LAK' },
+  { fullname: 'Minnesota Wild', abbrev: 'MIN' },
+  { fullname: 'Nashville Predators', abbrev: 'NSH' },
+  { fullname: 'New Jersey Devils', abbrev: 'NJD' },
+  { fullname: 'New York Islanders', abbrev: 'NYI' },
+  { fullname: 'New York Rangers', abbrev: 'NYR' },
+  { fullname: 'Ottawa Senators', abbrev: 'OTT' },
+  { fullname: 'Philadelphia Flyers', abbrev: 'PHI' },
+  { fullname: 'Pittsburgh Penguins', abbrev: 'PIT' },
+  { fullname: 'San Jose Sharks', abbrev: 'SJS' },
+  { fullname: 'Seattle Kraken', abbrev: 'SEA' },
+  { fullname: 'St. Louis Blues', abbrev: 'STL' },
+  { fullname: 'Tampa Bay Lightning', abbrev: 'TBL' },
+  { fullname: 'Toronto Maple Leafs', abbrev: 'TOR' },
+  { fullname: 'Utah Hockey Club', abbrev: 'UTA' },
+  { fullname: 'Vancouver Canucks', abbrev: 'VAN' },
+  { fullname: 'Vegas Golden Knights', abbrev: 'VGK' },
+  { fullname: 'Washington Capitals', abbrev: 'WSH' },
+  { fullname: 'Winnipeg Jets', abbrev: 'WPG' },
+];
+
 // Function to update the DOM with team data
 function updateDOMTeams(teams: Teams[]): void {
   const $table = document.querySelector('.teams-table');
@@ -101,6 +134,8 @@ function updateDOMTeams(teams: Teams[]): void {
       const abbreviation = $abbreviationCell.textContent ?? '';
       const fullteamname = $teamNameCell.textContent ?? '';
       updateSchedule(fullteamname, abbreviation, selectedSeason);
+      populateScheduleSeasonDropdown(selectedSeason);
+      populateTeamsDropdown(abbreviation);
       viewSwap('schedule');
     });
 
@@ -240,7 +275,11 @@ function updateDOMSchedule(nhlteamSchedule: Schedule[]): void {
   if (!$scheduleHeader) throw new Error('The $scheduleHeader query failed');
 
   $scheduleHeader.textContent =
-    'Full Season Schedule (' + nhlteamSchedule[0].season + ')';
+    'Full Season Schedule (' +
+    selectedSeason.slice(0, 4) +
+    ' - ' +
+    selectedSeason.slice(4, 8) +
+    ')';
 }
 
 // function to swap views between schedule, teams, roster, and statistics
@@ -347,11 +386,43 @@ function pendingdelete(abbreviation: string) {
 function removeFavorites(pendingDeletion: string) {
   const currentFavorites: string[] = readFavorites();
 
-  for (let i=0; i<currentFavorites.length; i++){
+  for (let i = 0; i < currentFavorites.length; i++) {
     if (currentFavorites[i] === pendingDeletion) {
-      currentFavorites.splice(i,1);
+      currentFavorites.splice(i, 1);
     }
   }
 
   return currentFavorites;
+}
+
+//Populate team's dropdown on the schedules page with teams
+function populateTeamsDropdown(teamabbrev: string) {
+  const $teamdropdown = document.getElementById(
+    'teamName',
+  ) as HTMLSelectElement;
+  if (!$teamdropdown) throw new Error('$teamdropdown is null');
+
+  // Clear existing options from dropdown
+  $teamdropdown.innerHTML = '';
+
+  // Create and append options based on nhlTeamFullName list
+  for (let i = 0; i < nhlTeamFullName.length; i++) {
+    const optionElement = document.createElement('option');
+    optionElement.value = nhlTeamFullName[i].abbrev;
+    optionElement.textContent = nhlTeamFullName[i].fullname;
+    $teamdropdown.appendChild(optionElement);
+  }
+
+  $teamdropdown.value = teamabbrev;
+}
+
+function populateScheduleSeasonDropdown(season: string) {
+  const $seasonScheduledropdown = document.getElementById(
+    'scheduleSeasonDropdown',
+  ) as HTMLSelectElement;
+  if (!$seasonScheduledropdown)
+    throw new Error('$seasonScheduledropdown is null');
+
+  $seasonScheduledropdown.value = season;
+  selectedSeason = season;
 }

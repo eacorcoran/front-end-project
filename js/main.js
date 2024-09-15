@@ -195,6 +195,8 @@ async function updateSchedule(fullteamname, abbreviation, season) {
         });
     }
     updateDOMSchedule(nhlteamSchedule);
+    populateScheduleSeasonDropdown(selectedSeason);
+    populateTeamsDropdown(abbreviation);
 }
 //Add click event listener to close out the confirmation modal
 const $cancelButton = document.querySelector('.remove-modal-cancel');
@@ -222,4 +224,27 @@ $confirmButton.addEventListener('click', (event) => {
     //Refresh the teams roster so that removed teams are no longer marked as a favorite
     updateTeams();
     $dialog.close();
+});
+// Add click event listener to the season and teams dropdown on the schedule page
+const $scheduleDropdownSchedule = document.getElementById('scheduleSeasonDropdown');
+if (!$scheduleDropdownSchedule)
+    throw new Error('$scheduleDropdownSchedule is null');
+const $teamDropdownSchedule = document.getElementById('teamName');
+if (!$teamDropdownSchedule)
+    throw new Error('$scheduleDropdownSchedule is null');
+$scheduleDropdownSchedule.addEventListener('change', (event) => {
+    event.preventDefault();
+    const season = $scheduleDropdownSchedule.value;
+    const abbreviation = $teamDropdownSchedule.value;
+    const fullteamname = $teamDropdownSchedule.textContent ?? '';
+    selectedSeason = season;
+    updateSchedule(fullteamname, abbreviation, season);
+});
+$teamDropdownSchedule.addEventListener('change', (event) => {
+    event.preventDefault();
+    const season = $scheduleDropdownSchedule.value;
+    const abbreviation = $teamDropdownSchedule.value;
+    const fullteamname = $teamDropdownSchedule.textContent ?? '';
+    selectedSeason = season;
+    updateSchedule(fullteamname, abbreviation, season);
 });

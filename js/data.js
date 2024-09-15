@@ -41,6 +41,38 @@ const nhlTeams = [
     'CAR',
     'MTL',
 ];
+const nhlTeamFullName = [
+    { fullname: 'Anaheim Ducks', abbrev: 'ANA' },
+    { fullname: 'Boston Bruins', abbrev: 'BOS' },
+    { fullname: 'Buffalo Sabres', abbrev: 'BUF' },
+    { fullname: 'Calgary Flames', abbrev: 'CGY' },
+    { fullname: 'Chicago Blackhawks', abbrev: 'CHI' },
+    { fullname: 'Colorado Avalanche', abbrev: 'COL' },
+    { fullname: 'Columbus Blue Jackets', abbrev: 'CBJ' },
+    { fullname: 'Dallas Stars', abbrev: 'DAL' },
+    { fullname: 'Detroit Red Wings', abbrev: 'DET' },
+    { fullname: 'Edmonton Oilers', abbrev: 'EDM' },
+    { fullname: 'Florida Panthers', abbrev: 'FLA' },
+    { fullname: 'Los Angeles Kings', abbrev: 'LAK' },
+    { fullname: 'Minnesota Wild', abbrev: 'MIN' },
+    { fullname: 'Nashville Predators', abbrev: 'NSH' },
+    { fullname: 'New Jersey Devils', abbrev: 'NJD' },
+    { fullname: 'New York Islanders', abbrev: 'NYI' },
+    { fullname: 'New York Rangers', abbrev: 'NYR' },
+    { fullname: 'Ottawa Senators', abbrev: 'OTT' },
+    { fullname: 'Philadelphia Flyers', abbrev: 'PHI' },
+    { fullname: 'Pittsburgh Penguins', abbrev: 'PIT' },
+    { fullname: 'San Jose Sharks', abbrev: 'SJS' },
+    { fullname: 'Seattle Kraken', abbrev: 'SEA' },
+    { fullname: 'St. Louis Blues', abbrev: 'STL' },
+    { fullname: 'Tampa Bay Lightning', abbrev: 'TBL' },
+    { fullname: 'Toronto Maple Leafs', abbrev: 'TOR' },
+    { fullname: 'Utah Hockey Club', abbrev: 'UTA' },
+    { fullname: 'Vancouver Canucks', abbrev: 'VAN' },
+    { fullname: 'Vegas Golden Knights', abbrev: 'VGK' },
+    { fullname: 'Washington Capitals', abbrev: 'WSH' },
+    { fullname: 'Winnipeg Jets', abbrev: 'WPG' },
+];
 // Function to update the DOM with team data
 function updateDOMTeams(teams) {
     const $table = document.querySelector('.teams-table');
@@ -88,6 +120,8 @@ function updateDOMTeams(teams) {
             const abbreviation = $abbreviationCell.textContent ?? '';
             const fullteamname = $teamNameCell.textContent ?? '';
             updateSchedule(fullteamname, abbreviation, selectedSeason);
+            populateScheduleSeasonDropdown(selectedSeason);
+            populateTeamsDropdown(abbreviation);
             viewSwap('schedule');
         });
         $scheduleCell.appendChild($scheduleLink);
@@ -203,7 +237,11 @@ function updateDOMSchedule(nhlteamSchedule) {
     if (!$scheduleHeader)
         throw new Error('The $scheduleHeader query failed');
     $scheduleHeader.textContent =
-        'Full Season Schedule (' + nhlteamSchedule[0].season + ')';
+        'Full Season Schedule (' +
+            selectedSeason.slice(0, 4) +
+            ' - ' +
+            selectedSeason.slice(4, 8) +
+            ')';
 }
 // function to swap views between schedule, teams, roster, and statistics
 function viewSwap(viewName) {
@@ -304,4 +342,27 @@ function removeFavorites(pendingDeletion) {
         }
     }
     return currentFavorites;
+}
+//Populate team's dropdown on the schedules page with teams
+function populateTeamsDropdown(teamabbrev) {
+    const $teamdropdown = document.getElementById('teamName');
+    if (!$teamdropdown)
+        throw new Error('$teamdropdown is null');
+    // Clear existing options from dropdown
+    $teamdropdown.innerHTML = '';
+    // Create and append options based on nhlTeamFullName list
+    for (let i = 0; i < nhlTeamFullName.length; i++) {
+        const optionElement = document.createElement('option');
+        optionElement.value = nhlTeamFullName[i].abbrev;
+        optionElement.textContent = nhlTeamFullName[i].fullname;
+        $teamdropdown.appendChild(optionElement);
+    }
+    $teamdropdown.value = teamabbrev;
+}
+function populateScheduleSeasonDropdown(season) {
+    const $seasonScheduledropdown = document.getElementById('scheduleSeasonDropdown');
+    if (!$seasonScheduledropdown)
+        throw new Error('$seasonScheduledropdown is null');
+    $seasonScheduledropdown.value = season;
+    selectedSeason = season;
 }
