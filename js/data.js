@@ -1,11 +1,13 @@
 "use strict";
 /* exported data */
 let data = {
-    view: 'teams',
+    view: readDataView(),
 };
 let favorites = readFavorites();
 let pendingDeletion = '';
-let selectedSeason = '20242025';
+let selectedSeason = readSeason();
+let rosterteam = readRoster();
+let scheduleteam = readScheduleTeam();
 //List of current NHL teams used to filter out old teams from the data returned from the API
 const nhlTeams = [
     'DET',
@@ -72,6 +74,7 @@ const nhlTeamFullName = [
     { fullname: 'Vegas Golden Knights', abbrev: 'VGK' },
     { fullname: 'Washington Capitals', abbrev: 'WSH' },
     { fullname: 'Winnipeg Jets', abbrev: 'WPG' },
+    { fullname: '', abbrev: '' },
 ];
 // Function to update the DOM with team data
 function updateDOMTeams(teams) {
@@ -106,6 +109,7 @@ function updateDOMTeams(teams) {
             const abbreviation = $abbreviationCell.textContent ?? '';
             const fullteamname = $teamNameCell.textContent ?? '';
             updateRoster(fullteamname, abbreviation, selectedSeason);
+            writeRoster(abbreviation);
             viewSwap('roster');
         });
         $rosterCell.appendChild($rosterLink);
@@ -119,6 +123,8 @@ function updateDOMTeams(teams) {
             event.preventDefault();
             const abbreviation = $abbreviationCell.textContent ?? '';
             const fullteamname = $teamNameCell.textContent ?? '';
+            scheduleteam = abbreviation;
+            writeScheduleTeam(abbreviation);
             updateSchedule(fullteamname, abbreviation, selectedSeason);
             populateScheduleSeasonDropdown(selectedSeason);
             populateTeamsDropdown(abbreviation);
@@ -177,7 +183,7 @@ function updateDOMRoster(nhlteamRoster) {
         $playerimage.src = nhlteamRoster[i].image;
         $playerimageCell.appendChild($playerimage);
         const $jerseyCell = $row.insertCell();
-        $jerseyCell.textContent = nhlteamRoster[i].jersey;
+        $jerseyCell.textContent = '#' + nhlteamRoster[i].jersey;
         const $fullNameCell = $row.insertCell();
         $fullNameCell.textContent = nhlteamRoster[i].fullname;
         const $positionCell = $row.insertCell();
@@ -233,21 +239,16 @@ function updateDOMSchedule(nhlteamSchedule) {
         $venueCell.textContent = nhlteamSchedule[i].venuename;
         const $linkCell = $row.insertCell();
     }
-    const $scheduleHeader = document.querySelector('.schedule-section');
-    if (!$scheduleHeader)
-        throw new Error('The $scheduleHeader query failed');
-    $scheduleHeader.textContent =
-        'Full Season Schedule (' +
-            selectedSeason.slice(0, 4) +
-            ' - ' +
-            selectedSeason.slice(4, 8) +
-            ')';
 }
 // function to swap views between schedule, teams, roster, and statistics
 function viewSwap(viewName) {
     const $teams = document.querySelector("div[data-view='teams']");
     const $roster = document.querySelector("div[data-view='roster']");
     const $schedule = document.querySelector("div[data-view='schedule']");
+    const $scheduleNoUnderline = document.querySelector('.header-links-schedule');
+    const $scheduleUnderline = document.querySelector('.header-links-schedule-underlined');
+    const $teamNoUnderline = document.querySelector('.header-links-team');
+    const $teamUnderline = document.querySelector('.header-links-team-underlined');
     if (!$teams)
         throw new Error('$teams is null');
     if (!$roster)
@@ -260,6 +261,8 @@ function viewSwap(viewName) {
         $teams.setAttribute('class', '');
         data.view = 'teams';
         localStorage.setItem('data-view', data.view);
+        $scheduleUnderline?.setAttribute('class', 'header-links-schedule');
+        $teamNoUnderline?.setAttribute('class', 'header-links-team-underlined');
     }
     else if (viewName === 'roster') {
         $teams.setAttribute('class', 'hidden');
@@ -267,6 +270,8 @@ function viewSwap(viewName) {
         $roster.setAttribute('class', '');
         data.view = 'roster';
         localStorage.setItem('data-view', data.view);
+        $teamUnderline?.setAttribute('class', 'header-links-team');
+        $scheduleUnderline?.setAttribute('class', 'header-links-schedule');
     }
     else if (viewName === 'schedule') {
         $teams.setAttribute('class', 'hidden');
@@ -274,6 +279,8 @@ function viewSwap(viewName) {
         $schedule.setAttribute('class', '');
         data.view = 'schedule';
         localStorage.setItem('data-view', data.view);
+        $scheduleNoUnderline?.setAttribute('class', 'header-links-schedule-underlined');
+        $teamUnderline?.setAttribute('class', 'header-links-team');
     }
 }
 //show favorites modal confirmation
@@ -365,4 +372,93 @@ function populateScheduleSeasonDropdown(season) {
         throw new Error('$seasonScheduledropdown is null');
     $seasonScheduledropdown.value = season;
     selectedSeason = season;
+    writeSeason(selectedSeason);
+}
+function populateSeasonDropdown(season) {
+    const $SeasonDropdown = document.getElementById('scheduleSeason');
+    if (!$SeasonDropdown)
+        throw new Error('$SeasonDropdown is null');
+    $SeasonDropdown.value = season;
+}
+//read data-view from local storage so that it is utilized after a page refresh
+function readDataView() {
+    let newdataview = '';
+    const readJSON = localStorage.getItem('data-view');
+    if (readJSON === null) {
+        newdataview = 'teams';
+    }
+    else {
+        newdataview = readJSON;
+    }
+    return newdataview;
+}
+//write season to local storage so that it can be used
+function writeSeason(selectedSeason) {
+    localStorage.setItem('season', selectedSeason);
+}
+//read data-view from local storage so that it is utilized after a page refresh
+function readSeason() {
+    let newseason = '';
+    const readJSON = localStorage.getItem('season');
+    if (readJSON === null) {
+        newseason = '20242025';
+    }
+    else {
+        newseason = readJSON;
+    }
+    return newseason;
+}
+//write season to local storage so that it can be used
+function writeRoster(abbrev) {
+    localStorage.setItem('roster-team', abbrev);
+}
+//read data-view from local storage so that it is utilized after a page refresh
+function readRoster() {
+    let roster = '';
+    const readJSON = localStorage.getItem('roster-team');
+    if (readJSON === null) {
+        roster = '';
+    }
+    else {
+        roster = readJSON;
+    }
+    return roster;
+}
+function getFullName(abbrev) {
+    let fullTeamName = '';
+    for (let i = 0; i < nhlTeamFullName.length; i++) {
+        if (nhlTeamFullName[i].abbrev === abbrev) {
+            fullTeamName = nhlTeamFullName[i].fullname;
+        }
+    }
+    return fullTeamName;
+}
+//write season to local storage so that it can be used
+function writeScheduleTeam(abbrev) {
+    localStorage.setItem('schedule-team', abbrev);
+}
+//read data-view from local storage so that it is utilized after a page refresh
+function readScheduleTeam() {
+    let scheduleteam = '';
+    const readJSON = localStorage.getItem('schedule-team');
+    if (readJSON === null) {
+        scheduleteam = '';
+    }
+    else {
+        scheduleteam = readJSON;
+    }
+    return scheduleteam;
+}
+function clearSchedule() {
+    const $table = document.querySelector('.schedule-table');
+    if (!$table)
+        throw new Error('The $table query failed');
+    // Find the tbody element within the table
+    const $tbody = $table.querySelector('tbody');
+    if (!$tbody)
+        throw new Error('The tbody query failed');
+    // Clear existing rows in the tbody
+    while ($tbody.rows.length > 0) {
+        $tbody.deleteRow(0);
+    }
 }

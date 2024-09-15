@@ -27,11 +27,11 @@
                 src="https://seeklogo.com/images/N/national-hockey-league-nhl-logo-DAC0622A6B-seeklogo.com.png"
                 alt="nhl logo" />
             </div>
-            <div class="header-links-underlined">
-              <a href="">Teams</a>
+            <div class="header-links-team-underlined">
+              <a href="#" class="teams-header-link">Teams</a>
             </div>
-            <div class="header-links">
-              <a href="">Schedules</a>
+            <div class="header-links-schedule">
+              <a href="#" class="schedule-header-link">Schedules</a>
             </div>
           </div>
           <div class="right-header">
@@ -117,10 +117,8 @@
       </div>
       <div data-view="schedule" class="hidden">
         <div id="schedule-container">
-          <h1 class="schedule-section"></h1>
-          <label for="teamName">TeamName</label>
-          <select id="teamName">
-          </select>
+          <label for="teamName">Team Name</label>
+          <select id="teamName"></select>
           <label for="scheduleSeasonDropdown">Season</label>
           <select id="scheduleSeasonDropdown">
             <option value="20242025">2024-2025</option>
@@ -135,6 +133,7 @@
             <option value="20152016">2015-2016</option>
             <option value="20142015">2014-2015</option>
           </select>
+          <h1 class="schedule-section">Season Schedule</h1>
           <table class="schedule-table">
             <thead>
               <tr>

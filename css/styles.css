@@ -36,17 +36,21 @@ body {
   margin-right: 25px;
 }
 
-.header-links-underlined,
-.header-links {
+.header-links-schedule-underlined,
+.header-links-schedule,
+.header-links-team-underlined,
+.header-links-team {
   margin: 20px;
   color: #fff;
 }
 
-.header-links-underlined > a {
+.header-links-schedule-underlined > a,
+.header-links-team-underlined > a {
   text-decoration: underline;
 }
 
-.header-links > a {
+.header-links-schedule > a,
+.header-links-team > a {
   text-decoration: none;
 }
 
@@ -105,11 +109,17 @@ tr a:visited {
 
 .teams-content,
 .roster-section,
-.schedule-section,
 #schedule-container {
   font-family: Arial, Helvetica, sans-serif;
   text-align: center;
   margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+.schedule-section {
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+  margin-top: 25px;
   margin-bottom: 50px;
 }
 
@@ -252,6 +262,7 @@ dialog {
   table tr {
     border: 1px solid #ddd;
     position: relative;
+    padding: 5px;
   }
 
   table td {
@@ -275,7 +286,7 @@ dialog {
   .teams-content,
   .roster-section,
   .schedule-section {
-    margin-bottom: 0px;
+    margin-bottom: 30px;
   }
 
   .footer {

@@ -136,7 +136,14 @@ async function fetchSchedule(abbreviation: string, season: string) {
 
 // Initialize the teams list on page load
 document.addEventListener('DOMContentLoaded', () => {
+  const selectedseason = readSeason();
+  const currentview = readDataView();
+  const schedulefullname = getFullName(scheduleteam);
+  populateTeamsDropdown(scheduleteam);
+  updateSchedule(schedulefullname, scheduleteam, selectedseason);
   updateTeams();
+  const rosterFullName = getFullName(rosterteam);
+  updateRoster(rosterFullName, rosterteam, selectedseason);
 
   // Get reference to the season dropdown
   const selectElement = document.getElementById(
@@ -148,10 +155,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const handleSelectChange = () => {
     selectedSeason = selectElement.value;
+    writeSeason(selectedSeason);
   };
 
   // Add event listener to the select element
   selectElement.addEventListener('change', handleSelectChange);
+
+  viewSwap(currentview);
 });
 
 //Populates team data from the API and populates the team table
@@ -300,7 +310,6 @@ async function updateSchedule(
   }
 
   updateDOMSchedule(nhlteamSchedule);
-
   populateScheduleSeasonDropdown(selectedSeason);
   populateTeamsDropdown(abbreviation);
 }
@@ -342,7 +351,8 @@ $confirmButton.addEventListener('click', (event) => {
 const $scheduleDropdownSchedule = document.getElementById(
   'scheduleSeasonDropdown',
 ) as HTMLSelectElement;
-if (!$scheduleDropdownSchedule) throw new Error('$scheduleDropdownSchedule is null');
+if (!$scheduleDropdownSchedule)
+  throw new Error('$scheduleDropdownSchedule is null');
 
 const $teamDropdownSchedule = document.getElementById(
   'teamName',
@@ -356,9 +366,9 @@ $scheduleDropdownSchedule.addEventListener('change', (event) => {
   const abbreviation = $teamDropdownSchedule.value;
   const fullteamname = $teamDropdownSchedule.textContent ?? '';
   selectedSeason = season;
+  writeSeason(selectedSeason);
   updateSchedule(fullteamname, abbreviation, season);
 });
-
 
 $teamDropdownSchedule.addEventListener('change', (event) => {
   event.preventDefault();
@@ -366,5 +376,45 @@ $teamDropdownSchedule.addEventListener('change', (event) => {
   const abbreviation = $teamDropdownSchedule.value;
   const fullteamname = $teamDropdownSchedule.textContent ?? '';
   selectedSeason = season;
+  scheduleteam = abbreviation;
+  writeSeason(selectedSeason);
+  writeScheduleTeam(abbreviation);
   updateSchedule(fullteamname, abbreviation, season);
+});
+
+// Add click event listener to the schedule link in the header
+const $scheduleHeaderlink = document.querySelector('.schedule-header-link');
+if (!$scheduleHeaderlink) throw new Error('$scheduleHeaderlink is null');
+
+$scheduleHeaderlink.addEventListener('click', (event) => {
+  event.preventDefault();
+  let team: string = '';
+  clearSchedule();
+  if (readRoster() === '') {
+    team = readScheduleTeam();
+  } else if (!readRoster()) {
+    team = readScheduleTeam();
+  } else {
+    team = readRoster();
+  }
+  writeScheduleTeam(team);
+  populateTeamsDropdown(team);
+  populateScheduleSeasonDropdown(selectedSeason);
+  const schedulefullname = getFullName(team);
+  updateSchedule(schedulefullname, team, selectedSeason);
+  viewSwap('schedule');
+  writeRoster('');
+});
+
+// Add click event listener to the team link in the header
+const $teamHeaderlink = document.querySelector('.teams-header-link');
+if (!$teamHeaderlink) throw new Error('$teamHeaderlink is null');
+
+$teamHeaderlink.addEventListener('click', (event) => {
+  event.preventDefault();
+  populateSeasonDropdown(selectedSeason);
+  updateTeams();
+  writeRoster('');
+  writeScheduleTeam('');
+  viewSwap('teams');
 });
