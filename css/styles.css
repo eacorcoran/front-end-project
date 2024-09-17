@@ -94,6 +94,21 @@ tr a:visited {
   font-weight: 100;
 }
 
+.back-to-teams,
+.back-to-teams-schedule,
+.back-to-schedule {
+  display: flex;
+  justify-content: right;
+  margin-top: 20px;
+  margin-right: 50px;
+}
+
+#roster-container a:visited,
+#schedule-container a:visited,
+#stats-container a:visited {
+  color: black;
+}
+
 .footer {
   text-align: center;
   align-content: center;
