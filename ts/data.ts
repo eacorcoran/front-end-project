@@ -346,7 +346,9 @@ function updateDOMSchedule(nhlteamSchedule: Schedule[]): void {
     const $keyStatsCell = $row.insertCell();
     const $keyStatsLink = document.createElement('a');
     $keyStatsLink.href = '#';
-    $keyStatsLink.textContent = 'Key Statistics';
+    if (score === '')
+      {$keyStatsLink.textContent = ''}
+    else {$keyStatsLink.textContent = 'Key Statistics'};
     $keyStatsLink.className = 'key-stats-link';
     $keyStatsCell.appendChild($keyStatsLink);
 

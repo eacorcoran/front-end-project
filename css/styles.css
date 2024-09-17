@@ -1,5 +1,5 @@
 body {
-  font-family: Roboto, sans-serif;
+  font-family: 'Roboto';
   font-size: large;
   font-weight: 1px;
   width: 100%;
@@ -75,7 +75,7 @@ tr a:visited {
   border-radius: 4px;
   height: 36px;
   width: 200px;
-  font-family: Roboto, sans-serif;
+  font-family: 'Roboto';
   font-size: 16px;
   font-weight: 100;
 }
@@ -89,7 +89,7 @@ tr a:visited {
   cursor: pointer;
   height: 36px;
   width: 79px;
-  font-family: Roboto, sans-serif;
+  font-family: 'Roboto';
   font-size: 16px;
   font-weight: 100;
 }
@@ -110,14 +110,14 @@ tr a:visited {
 .teams-content,
 .roster-section,
 #schedule-container {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Roboto';
   text-align: center;
   margin-top: 50px;
   margin-bottom: 50px;
 }
 
 .schedule-section {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Roboto';
   text-align: center;
   margin-top: 25px;
   margin-bottom: 50px;
@@ -219,7 +219,7 @@ select {
 }
 
 dialog {
-  font-family: Roboto, sans-serif;
+  font-family: 'Roboto';
   font-size: 12px;
   padding: 30px;
   border-radius: 4px;
