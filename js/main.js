@@ -232,7 +232,7 @@ async function updateSchedule(fullteamname, abbreviation, season) {
     populateScheduleSeasonDropdown(selectedSeason);
     populateTeamsDropdown(abbreviation);
 }
-//Populate statistic data from the API
+//Populate statistics data from the API
 async function updateStatistics(gameid) {
     const gamestatistics = await fetchStatistics(gameid); // Wait for the promise to resolve
     const nhlgamestats = {
@@ -351,4 +351,53 @@ $teamHeaderlink.addEventListener('click', (event) => {
     writeRoster('');
     writeScheduleTeam('');
     viewSwap('teams');
+});
+// Add click event listener to the 'back-to-teams' link on the roster
+const $backtoTeamslink = document.querySelector('.back-to-teams');
+if (!$backtoTeamslink)
+    throw new Error('$backtoTeamslink is null');
+$backtoTeamslink.addEventListener('click', (event) => {
+    event.preventDefault();
+    populateSeasonDropdown(selectedSeason);
+    updateTeams();
+    writeRoster('');
+    writeScheduleTeam('');
+    viewSwap('teams');
+});
+// Add click event listener to the 'back-to-teams' link on the schedule
+const $backtoTeamsSchedulelink = document.querySelector('.back-to-teams-schedule');
+if (!$backtoTeamsSchedulelink)
+    throw new Error('$backtoTeamsSchedulelink is null');
+$backtoTeamsSchedulelink.addEventListener('click', (event) => {
+    event.preventDefault();
+    populateSeasonDropdown(selectedSeason);
+    updateTeams();
+    writeRoster('');
+    writeScheduleTeam('');
+    viewSwap('teams');
+});
+// Add click event listener to the 'back-to-schedule' link on the statistics page
+const $backtoSchedulelink = document.querySelector('.back-to-schedule');
+if (!$backtoSchedulelink)
+    throw new Error('$backtoSchedulelink is null');
+$backtoSchedulelink.addEventListener('click', (event) => {
+    event.preventDefault();
+    let team = '';
+    clearSchedule();
+    if (readRoster() === '') {
+        team = readScheduleTeam();
+    }
+    else if (!readRoster()) {
+        team = readScheduleTeam();
+    }
+    else {
+        team = readRoster();
+    }
+    writeScheduleTeam(team);
+    populateTeamsDropdown(team);
+    populateScheduleSeasonDropdown(selectedSeason);
+    const schedulefullname = getFullName(team);
+    updateSchedule(schedulefullname, team, selectedSeason);
+    viewSwap('schedule');
+    writeRoster('');
 });

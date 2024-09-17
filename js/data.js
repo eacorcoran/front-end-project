@@ -44,6 +44,7 @@ const nhlTeams = [
     'CAR',
     'MTL',
 ];
+//Full list of NHL teams [team names + abbreviations]
 const nhlTeamFullName = [
     { fullname: 'Anaheim Ducks', abbrev: 'ANA' },
     { fullname: 'Boston Bruins', abbrev: 'BOS' },
@@ -298,7 +299,13 @@ function updateDOMSchedule(nhlteamSchedule) {
         const $keyStatsCell = $row.insertCell();
         const $keyStatsLink = document.createElement('a');
         $keyStatsLink.href = '#';
-        $keyStatsLink.textContent = 'Key Statistics';
+        if (score === '') {
+            $keyStatsLink.textContent = '';
+        }
+        else {
+            $keyStatsLink.textContent = 'Key Statistics';
+        }
+        ;
         $keyStatsLink.className = 'key-stats-link';
         $keyStatsCell.appendChild($keyStatsLink);
         // Add click event listener to the key stats link
@@ -626,12 +633,4 @@ function clearSchedule() {
     while ($tbody.rows.length > 0) {
         $tbody.deleteRow(0);
     }
-}
-//Convert UTC with offset
-function convertUTCDateWithOffset(utcDate, offsetHours) {
-    const utcTime = utcDate.getTime();
-    const offsetMilliseconds = offsetHours * 60 * 60 * 1000;
-    const venueTime = utcTime + offsetMilliseconds;
-    const venuetimedate = new Date(venueTime);
-    return venuetimedate.toLocaleString();
 }
