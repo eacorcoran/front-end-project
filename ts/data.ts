@@ -14,6 +14,8 @@ let rosterteam: string = readRoster();
 
 let scheduleteam: string = readScheduleTeam();
 
+let gameid: string = readStatisticsGameId();
+
 //List of current NHL teams used to filter out old teams from the data returned from the API
 const nhlTeams: string[] = [
   'DET',
@@ -259,7 +261,8 @@ function updateDOMSchedule(nhlteamSchedule: Schedule[]): void {
     $gameidCell.textContent = (i + 1).toString();
 
     const $awayTeamCell = $row.insertCell();
-    $awayTeamCell.innerHTML = getFullName(nhlteamSchedule[i].awayteamcode)+'<br>';
+    $awayTeamCell.innerHTML =
+      getFullName(nhlteamSchedule[i].awayteamcode) + '<br>';
     const $awayteamimage = document.createElement('img');
     $awayteamimage.src = nhlteamSchedule[i].awayteamlogo;
     $awayTeamCell.appendChild($awayteamimage);
@@ -346,7 +349,94 @@ function updateDOMSchedule(nhlteamSchedule: Schedule[]): void {
     $keyStatsLink.textContent = 'Key Statistics';
     $keyStatsLink.className = 'key-stats-link';
     $keyStatsCell.appendChild($keyStatsLink);
+
+    // Add click event listener to the key stats link
+    $keyStatsLink.addEventListener('click', (event) => {
+      event.preventDefault();
+      const gameid = nhlteamSchedule[i].gameid;
+      updateStatistics(gameid);
+      writeStatisticsGameId(gameid);
+      viewSwap('key-stats');
+    });
   }
+}
+
+// Function to update the DOM with roster data
+function updateDOMStatistics(nhlgamestats: Statistics): void {
+  //Get formatted info for header
+  const awayteamName: string = getFullName(nhlgamestats.awayteamcode);
+  const hometeamName: string = getFullName(nhlgamestats.hometeamcode);
+  const formatdate: string =
+    nhlgamestats.gamedate.slice(5, 7) +
+    '/' +
+    nhlgamestats.gamedate.slice(8, 10) +
+    '/' +
+    nhlgamestats.gamedate.slice(0, 4);
+
+  //Find header element and update
+  const $statsHeader = document.querySelector('.stats-section');
+  if (!$statsHeader) throw new Error('$statsHeader is not available');
+
+  $statsHeader.innerHTML = `${awayteamName}<br>@ ${hometeamName}<br>${formatdate}<br>${nhlgamestats.venuename}`;
+
+  //Find the table element
+  const $table = document.querySelector('.stats-table');
+  if (!$table) throw new Error('The $table query failed');
+
+  // Find the tbody element within the table
+  const $tbody = $table.querySelector('tbody');
+  if (!$tbody) throw new Error('The tbody query failed');
+
+  // Find the theader element within the table
+  const $thead = $table.querySelector('thead');
+  if (!$thead) throw new Error('The thead query failed');
+
+  const $awayheaderimage = $table.querySelector(
+    '.img-away-team',
+  ) as HTMLImageElement;
+  if (!$awayheaderimage) throw new Error('The awayheaderimage query failed');
+
+  const $homeheaderimage = $table.querySelector(
+    '.img-home-team',
+  ) as HTMLImageElement;
+  if (!$homeheaderimage) throw new Error('The homeheaderimage query failed');
+
+  //Away Team Header Update
+  $awayheaderimage.setAttribute('src',nhlgamestats.awayteamlogo);
+  $awayheaderimage.textContent = awayteamName;
+
+  //Home Team Header Update
+  $homeheaderimage.setAttribute('src', nhlgamestats.hometeamlogo);
+
+  //Score Updates
+  $tbody.rows[0].cells[1].innerHTML = nhlgamestats.awayteamscore.toString();
+  $tbody.rows[0].cells[2].innerHTML = nhlgamestats.hometeamscore.toString();
+
+  //SOG Updates
+  $tbody.rows[1].cells[1].innerHTML = nhlgamestats.awayteamSOG.toString();
+  $tbody.rows[1].cells[2].innerHTML = nhlgamestats.hometeamSOG.toString();
+
+  //Face Off Winning % Updates
+  $tbody.rows[2].cells[1].innerHTML =
+    (nhlgamestats.awayteamFaceOff * 100).toFixed(2).toString() + '%';
+  $tbody.rows[2].cells[2].innerHTML =
+    (nhlgamestats.hometeamFaceOff * 100).toFixed(2).toString() + '%';
+
+  //Power Play Updates
+  $tbody.rows[3].cells[1].innerHTML = nhlgamestats.awayteamPP;
+  $tbody.rows[3].cells[2].innerHTML = nhlgamestats.hometeamPP;
+
+  //Penalty Infraction Minutes Updates
+  $tbody.rows[4].cells[1].innerHTML = nhlgamestats.awayteamPIM.toString();
+  $tbody.rows[4].cells[2].innerHTML = nhlgamestats.hometeamPIM.toString();
+
+  //Hits Updates
+  $tbody.rows[5].cells[1].innerHTML = nhlgamestats.awayteamHits.toString();
+  $tbody.rows[5].cells[2].innerHTML = nhlgamestats.hometeamHits.toString();
+
+  //Blocked Shots Updates
+  $tbody.rows[6].cells[1].innerHTML = nhlgamestats.awayteamBlocked.toString();
+  $tbody.rows[6].cells[2].innerHTML = nhlgamestats.hometeamBlocked.toString();
 }
 
 // function to swap views between schedule, teams, roster, and statistics
@@ -354,6 +444,7 @@ function viewSwap(viewName: string) {
   const $teams = document.querySelector("div[data-view='teams']");
   const $roster = document.querySelector("div[data-view='roster']");
   const $schedule = document.querySelector("div[data-view='schedule']");
+  const $stats = document.querySelector("div[data-view='key-stats']");
 
   const $scheduleNoUnderline = document.querySelector('.header-links-schedule');
   const $scheduleUnderline = document.querySelector(
@@ -368,10 +459,12 @@ function viewSwap(viewName: string) {
   if (!$teams) throw new Error('$teams is null');
   if (!$roster) throw new Error('$roster is null');
   if (!$schedule) throw new Error('$schedule is null');
+  if (!$stats) throw new Error('$stats is null');
 
   if (viewName === 'teams') {
     $roster.setAttribute('class', 'hidden');
     $schedule.setAttribute('class', 'hidden');
+    $stats.setAttribute('class', 'hidden');
     $teams.setAttribute('class', '');
     data.view = 'teams';
     localStorage.setItem('data-view', data.view);
@@ -380,6 +473,7 @@ function viewSwap(viewName: string) {
   } else if (viewName === 'roster') {
     $teams.setAttribute('class', 'hidden');
     $schedule.setAttribute('class', 'hidden');
+    $stats.setAttribute('class', 'hidden');
     $roster.setAttribute('class', '');
     data.view = 'roster';
     localStorage.setItem('data-view', data.view);
@@ -388,6 +482,7 @@ function viewSwap(viewName: string) {
   } else if (viewName === 'schedule') {
     $teams.setAttribute('class', 'hidden');
     $roster.setAttribute('class', 'hidden');
+    $stats.setAttribute('class', 'hidden');
     $schedule.setAttribute('class', '');
     data.view = 'schedule';
     localStorage.setItem('data-view', data.view);
@@ -395,6 +490,15 @@ function viewSwap(viewName: string) {
       'class',
       'header-links-schedule-underlined',
     );
+    $teamUnderline?.setAttribute('class', 'header-links-team');
+  } else if (viewName === 'key-stats') {
+    $teams.setAttribute('class', 'hidden');
+    $roster.setAttribute('class', 'hidden');
+    $schedule.setAttribute('class', 'hidden');
+    $stats.setAttribute('class', '');
+    data.view = 'key-stats';
+    localStorage.setItem('data-view', data.view);
+    $scheduleUnderline?.setAttribute('class', 'header-links-schedule');
     $teamUnderline?.setAttribute('class', 'header-links-team');
   }
 }
@@ -594,6 +698,23 @@ function readScheduleTeam(): string {
     scheduleteam = readJSON;
   }
   return scheduleteam;
+}
+
+//write season to local storage so that it can be used
+function writeStatisticsGameId(gameid: string): void {
+  localStorage.setItem('stats-game', gameid);
+}
+
+//read data-view from local storage so that it is utilized after a page refresh
+function readStatisticsGameId(): string {
+  let statsGame: string = '';
+  const readJSON = localStorage.getItem('stats-game');
+  if (readJSON === null) {
+    statsGame = '';
+  } else {
+    statsGame = readJSON;
+  }
+  return statsGame;
 }
 
 function clearSchedule() {
