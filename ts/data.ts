@@ -52,6 +52,7 @@ const nhlTeams: string[] = [
   'MTL',
 ];
 
+//Full list of NHL teams [team names + abbreviations]
 const nhlTeamFullName: TeamLookup[] = [
   { fullname: 'Anaheim Ducks', abbrev: 'ANA' },
   { fullname: 'Boston Bruins', abbrev: 'BOS' },
@@ -731,14 +732,4 @@ function clearSchedule() {
   while ($tbody.rows.length > 0) {
     $tbody.deleteRow(0);
   }
-}
-
-//Convert UTC with offset
-function convertUTCDateWithOffset(utcDate: Date, offsetHours: number): string {
-  const utcTime = utcDate.getTime();
-  const offsetMilliseconds = offsetHours * 60 * 60 * 1000;
-  const venueTime = utcTime + offsetMilliseconds;
-  const venuetimedate = new Date(venueTime);
-
-  return venuetimedate.toLocaleString();
 }

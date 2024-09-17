@@ -232,7 +232,7 @@ async function updateSchedule(fullteamname, abbreviation, season) {
     populateScheduleSeasonDropdown(selectedSeason);
     populateTeamsDropdown(abbreviation);
 }
-//Populate statistic data from the API
+//Populate statistics data from the API
 async function updateStatistics(gameid) {
     const gamestatistics = await fetchStatistics(gameid); // Wait for the promise to resolve
     const nhlgamestats = {

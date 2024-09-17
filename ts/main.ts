@@ -372,7 +372,7 @@ async function updateSchedule(
   populateTeamsDropdown(abbreviation);
 }
 
-//Populate statistic data from the API
+//Populate statistics data from the API
 async function updateStatistics(gameid: string) {
   const gamestatistics = await fetchStatistics(gameid); // Wait for the promise to resolve
 
