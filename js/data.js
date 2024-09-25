@@ -6,10 +6,10 @@ let data = {
 let favorites = readFavorites();
 let pendingDeletion = '';
 let selectedSeason = readSeason();
-let rosterteam = readRoster();
+const rosterteam = readRoster();
 let scheduleteam = readScheduleTeam();
-let gameid = readStatisticsGameId();
-//List of current NHL teams used to filter out old teams from the data returned from the API
+const gameid = readStatisticsGameId();
+// List of current NHL teams used to filter out old teams from the data returned from the API
 const nhlTeams = [
     'DET',
     'BOS',
@@ -44,7 +44,7 @@ const nhlTeams = [
     'CAR',
     'MTL',
 ];
-//Full list of NHL teams [team names + abbreviations]
+// Full list of NHL teams [team names + abbreviations]
 const nhlTeamFullName = [
     { fullname: 'Anaheim Ducks', abbrev: 'ANA' },
     { fullname: 'Boston Bruins', abbrev: 'BOS' },
@@ -103,38 +103,47 @@ function updateDOMTeams(teams) {
         const $abbreviationCell = $row.insertCell();
         $abbreviationCell.textContent = team.triCode;
         const $rosterCell = $row.insertCell();
-        const $rosterLink = document.createElement('a');
-        $rosterLink.href = '#';
-        $rosterLink.textContent = 'Roster';
-        $rosterLink.className = 'roster-link';
-        // Add click event listener to the roster link
-        $rosterLink.addEventListener('click', (event) => {
-            event.preventDefault();
-            const abbreviation = $abbreviationCell.textContent ?? '';
-            const fullteamname = $teamNameCell.textContent ?? '';
-            updateRoster(fullteamname, abbreviation, selectedSeason);
-            writeRoster(abbreviation);
-            viewSwap('roster');
-        });
-        $rosterCell.appendChild($rosterLink);
+        const numericseasonvalue = Number(readSeason().substring(0, 4));
+        // Check conditions to decide whether to create the roster link
+        if (!(team.triCode === 'UTA' && numericseasonvalue !== 2024) &&
+            !(team.triCode === 'SEA' && numericseasonvalue < 2021)) {
+            const $rosterLink = document.createElement('a');
+            $rosterLink.href = '#';
+            $rosterLink.textContent = 'Roster';
+            $rosterLink.className = 'roster-link';
+            // Add click event listener to the roster link
+            $rosterLink.addEventListener('click', (event) => {
+                event.preventDefault();
+                const abbreviation = $abbreviationCell.textContent ?? '';
+                const fullteamname = $teamNameCell.textContent ?? '';
+                updateRoster(fullteamname, abbreviation, selectedSeason);
+                writeRoster(abbreviation);
+                viewSwap('roster');
+            });
+            $rosterCell.appendChild($rosterLink);
+        }
         const $scheduleCell = $row.insertCell();
-        const $scheduleLink = document.createElement('a');
-        $scheduleLink.href = '#';
-        $scheduleLink.textContent = 'Schedule';
-        $scheduleLink.className = 'schedule-link';
-        // Add click event listener to the schedule link
-        $scheduleLink.addEventListener('click', (event) => {
-            event.preventDefault();
-            const abbreviation = $abbreviationCell.textContent ?? '';
-            const fullteamname = $teamNameCell.textContent ?? '';
-            scheduleteam = abbreviation;
-            writeScheduleTeam(abbreviation);
-            updateSchedule(fullteamname, abbreviation, selectedSeason);
-            populateScheduleSeasonDropdown(selectedSeason);
-            populateTeamsDropdown(abbreviation);
-            viewSwap('schedule');
-        });
-        $scheduleCell.appendChild($scheduleLink);
+        // Check conditions to decide whether to create the schedule link
+        if (!(team.triCode === 'UTA' && numericseasonvalue !== 2024) &&
+            !(team.triCode === 'SEA' && numericseasonvalue < 2021)) {
+            const $scheduleLink = document.createElement('a');
+            $scheduleLink.href = '#';
+            $scheduleLink.textContent = 'Schedule';
+            $scheduleLink.className = 'schedule-link';
+            // Add click event listener to the schedule link
+            $scheduleLink.addEventListener('click', (event) => {
+                event.preventDefault();
+                const abbreviation = $abbreviationCell.textContent ?? '';
+                const fullteamname = $teamNameCell.textContent ?? '';
+                scheduleteam = abbreviation;
+                writeScheduleTeam(abbreviation);
+                updateSchedule(fullteamname, abbreviation, selectedSeason);
+                populateScheduleSeasonDropdown(selectedSeason);
+                populateTeamsDropdown(abbreviation);
+                viewSwap('schedule');
+            });
+            $scheduleCell.appendChild($scheduleLink);
+        }
         const $actionsCell = $row.insertCell();
         const $faveButton = document.createElement('a');
         $faveButton.href = '#';
@@ -218,6 +227,18 @@ function updateDOMSchedule(nhlteamSchedule) {
     // Clear existing rows in the tbody
     while ($tbody.rows.length > 0) {
         $tbody.deleteRow(0);
+    }
+    //Update the title on the page based on selected teams
+    const $scheduleTitle = document.querySelector('.schedule-section');
+    if (!$scheduleTitle)
+        throw new Error('$scheduleTitle is null');
+    if ((readScheduleTeam() !== '') &&
+        !(readScheduleTeam() === 'UTA' && readSeason() !== '20242025')) {
+        $scheduleTitle.textContent = 'Season Schedule';
+    }
+    else {
+        $scheduleTitle.textContent =
+            'Please select a valid team/season combination to see the full season schedule.';
     }
     // Add new rows based on the teams data
     for (let i = 0; i < nhlteamSchedule.length; i++) {
@@ -305,7 +326,6 @@ function updateDOMSchedule(nhlteamSchedule) {
         else {
             $keyStatsLink.textContent = 'Key Statistics';
         }
-        ;
         $keyStatsLink.className = 'key-stats-link';
         $keyStatsCell.appendChild($keyStatsLink);
         // Add click event listener to the key stats link
@@ -320,7 +340,7 @@ function updateDOMSchedule(nhlteamSchedule) {
 }
 // Function to update the DOM with roster data
 function updateDOMStatistics(nhlgamestats) {
-    //Get formatted info for header
+    // Get formatted info for header
     const awayteamName = getFullName(nhlgamestats.awayteamcode);
     const hometeamName = getFullName(nhlgamestats.hometeamcode);
     const formatdate = nhlgamestats.gamedate.slice(5, 7) +
@@ -328,12 +348,12 @@ function updateDOMStatistics(nhlgamestats) {
         nhlgamestats.gamedate.slice(8, 10) +
         '/' +
         nhlgamestats.gamedate.slice(0, 4);
-    //Find header element and update
+    // Find header element and update
     const $statsHeader = document.querySelector('.stats-section');
     if (!$statsHeader)
         throw new Error('$statsHeader is not available');
     $statsHeader.innerHTML = `${awayteamName}<br>@ ${hometeamName}<br>${formatdate}<br>${nhlgamestats.venuename}`;
-    //Find the table element
+    // Find the table element
     const $table = document.querySelector('.stats-table');
     if (!$table)
         throw new Error('The $table query failed');
@@ -351,32 +371,32 @@ function updateDOMStatistics(nhlgamestats) {
     const $homeheaderimage = $table.querySelector('.img-home-team');
     if (!$homeheaderimage)
         throw new Error('The homeheaderimage query failed');
-    //Away Team Header Update
+    // Away Team Header Update
     $awayheaderimage.setAttribute('src', nhlgamestats.awayteamlogo);
     $awayheaderimage.textContent = awayteamName;
-    //Home Team Header Update
+    // Home Team Header Update
     $homeheaderimage.setAttribute('src', nhlgamestats.hometeamlogo);
-    //Score Updates
+    // Score Updates
     $tbody.rows[0].cells[1].innerHTML = nhlgamestats.awayteamscore.toString();
     $tbody.rows[0].cells[2].innerHTML = nhlgamestats.hometeamscore.toString();
-    //SOG Updates
+    // SOG Updates
     $tbody.rows[1].cells[1].innerHTML = nhlgamestats.awayteamSOG.toString();
     $tbody.rows[1].cells[2].innerHTML = nhlgamestats.hometeamSOG.toString();
-    //Face Off Winning % Updates
+    // Face Off Winning % Updates
     $tbody.rows[2].cells[1].innerHTML =
         (nhlgamestats.awayteamFaceOff * 100).toFixed(2).toString() + '%';
     $tbody.rows[2].cells[2].innerHTML =
         (nhlgamestats.hometeamFaceOff * 100).toFixed(2).toString() + '%';
-    //Power Play Updates
+    // Power Play Updates
     $tbody.rows[3].cells[1].innerHTML = nhlgamestats.awayteamPP;
     $tbody.rows[3].cells[2].innerHTML = nhlgamestats.hometeamPP;
-    //Penalty Infraction Minutes Updates
+    // Penalty Infraction Minutes Updates
     $tbody.rows[4].cells[1].innerHTML = nhlgamestats.awayteamPIM.toString();
     $tbody.rows[4].cells[2].innerHTML = nhlgamestats.hometeamPIM.toString();
-    //Hits Updates
+    // Hits Updates
     $tbody.rows[5].cells[1].innerHTML = nhlgamestats.awayteamHits.toString();
     $tbody.rows[5].cells[2].innerHTML = nhlgamestats.hometeamHits.toString();
-    //Blocked Shots Updates
+    // Blocked Shots Updates
     $tbody.rows[6].cells[1].innerHTML = nhlgamestats.awayteamBlocked.toString();
     $tbody.rows[6].cells[2].innerHTML = nhlgamestats.hometeamBlocked.toString();
 }
@@ -439,24 +459,24 @@ function viewSwap(viewName) {
         $teamUnderline?.setAttribute('class', 'header-links-team');
     }
 }
-//show favorites modal confirmation
+// show favorites modal confirmation
 function showconfirmation(abbreviation) {
     const $dialog = document.querySelector('dialog');
     if (!$dialog)
         throw new Error('$dialog does not exist');
     $dialog.showModal();
 }
-//add team to favorites after clicking on the star
+// add team to favorites after clicking on the star
 function addfavorites(abbreviation) {
     favorites.push(abbreviation);
     writeFavorites();
 }
-//write favorites to local storage so that they are retained on page refresh
+// write favorites to local storage so that they are retained on page refresh
 function writeFavorites() {
     const favoritesJSON = JSON.stringify(favorites);
     localStorage.setItem('favorites', favoritesJSON);
 }
-//read favorites from local storage so that they utilized after a page refresh
+// read favorites from local storage so that they utilized after a page refresh
 function readFavorites() {
     let newFavorites = [];
     const readJSON = localStorage.getItem('favorites');
@@ -468,7 +488,7 @@ function readFavorites() {
     }
     return newFavorites;
 }
-//Keep favorited teams with correct icon indicating them as favorite
+// Keep favorited teams with correct icon indicating them as favorite
 function updateFavoriteIcons() {
     const favorites = readFavorites();
     // Ensure the tableBody is selected correctly
@@ -492,11 +512,11 @@ function updateFavoriteIcons() {
         }
     }
 }
-//Store team that is pending deletion from favorites
+// Store team that is pending deletion from favorites
 function pendingdelete(abbreviation) {
     pendingDeletion = abbreviation;
 }
-//Removed team from favorites
+// Removed team from favorites
 function removeFavorites(pendingDeletion) {
     const currentFavorites = readFavorites();
     for (let i = 0; i < currentFavorites.length; i++) {
@@ -506,7 +526,7 @@ function removeFavorites(pendingDeletion) {
     }
     return currentFavorites;
 }
-//Populate team's dropdown on the schedules page with teams
+// Populate team's dropdown on the schedules page with teams
 function populateTeamsDropdown(teamabbrev) {
     const $teamdropdown = document.getElementById('teamName');
     if (!$teamdropdown)
@@ -536,7 +556,7 @@ function populateSeasonDropdown(season) {
         throw new Error('$SeasonDropdown is null');
     $SeasonDropdown.value = season;
 }
-//read data-view from local storage so that it is utilized after a page refresh
+// read data-view from local storage so that it is utilized after a page refresh
 function readDataView() {
     let newdataview = '';
     const readJSON = localStorage.getItem('data-view');
@@ -548,11 +568,11 @@ function readDataView() {
     }
     return newdataview;
 }
-//write season to local storage so that it can be used
+// write season to local storage so that it can be used
 function writeSeason(selectedSeason) {
     localStorage.setItem('season', selectedSeason);
 }
-//read data-view from local storage so that it is utilized after a page refresh
+// read data-view from local storage so that it is utilized after a page refresh
 function readSeason() {
     let newseason = '';
     const readJSON = localStorage.getItem('season');
@@ -564,11 +584,11 @@ function readSeason() {
     }
     return newseason;
 }
-//write season to local storage so that it can be used
+// write season to local storage so that it can be used
 function writeRoster(abbrev) {
     localStorage.setItem('roster-team', abbrev);
 }
-//read data-view from local storage so that it is utilized after a page refresh
+// read data-view from local storage so that it is utilized after a page refresh
 function readRoster() {
     let roster = '';
     const readJSON = localStorage.getItem('roster-team');
@@ -589,11 +609,11 @@ function getFullName(abbrev) {
     }
     return fullTeamName;
 }
-//write season to local storage so that it can be used
+// write season to local storage so that it can be used
 function writeScheduleTeam(abbrev) {
     localStorage.setItem('schedule-team', abbrev);
 }
-//read data-view from local storage so that it is utilized after a page refresh
+// read data-view from local storage so that it is utilized after a page refresh
 function readScheduleTeam() {
     let scheduleteam = '';
     const readJSON = localStorage.getItem('schedule-team');
@@ -605,11 +625,11 @@ function readScheduleTeam() {
     }
     return scheduleteam;
 }
-//write season to local storage so that it can be used
+// write season to local storage so that it can be used
 function writeStatisticsGameId(gameid) {
     localStorage.setItem('stats-game', gameid);
 }
-//read data-view from local storage so that it is utilized after a page refresh
+// read data-view from local storage so that it is utilized after a page refresh
 function readStatisticsGameId() {
     let statsGame = '';
     const readJSON = localStorage.getItem('stats-game');
