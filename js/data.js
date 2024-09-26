@@ -106,7 +106,8 @@ function updateDOMTeams(teams) {
         const numericseasonvalue = Number(readSeason().substring(0, 4));
         // Check conditions to decide whether to create the roster link
         if (!(team.triCode === 'UTA' && numericseasonvalue !== 2024) &&
-            !(team.triCode === 'SEA' && numericseasonvalue < 2021)) {
+            !(team.triCode === 'SEA' && numericseasonvalue < 2021) &&
+            !(team.triCode === 'VGK' && numericseasonvalue < 2017)) {
             const $rosterLink = document.createElement('a');
             $rosterLink.href = '#';
             $rosterLink.textContent = 'Roster';
@@ -125,7 +126,8 @@ function updateDOMTeams(teams) {
         const $scheduleCell = $row.insertCell();
         // Check conditions to decide whether to create the schedule link
         if (!(team.triCode === 'UTA' && numericseasonvalue !== 2024) &&
-            !(team.triCode === 'SEA' && numericseasonvalue < 2021)) {
+            !(team.triCode === 'SEA' && numericseasonvalue < 2021) &&
+            !(team.triCode === 'VGK' && numericseasonvalue < 2017)) {
             const $scheduleLink = document.createElement('a');
             $scheduleLink.href = '#';
             $scheduleLink.textContent = 'Schedule';
@@ -232,8 +234,10 @@ function updateDOMSchedule(nhlteamSchedule) {
     const $scheduleTitle = document.querySelector('.schedule-section');
     if (!$scheduleTitle)
         throw new Error('$scheduleTitle is null');
-    if ((readScheduleTeam() !== '') &&
-        !(readScheduleTeam() === 'UTA' && readSeason() !== '20242025')) {
+    if (readScheduleTeam() !== '' &&
+        !(readScheduleTeam() === 'UTA' && readSeason() !== '20242025') &&
+        !(readScheduleTeam() == 'SEA' && Number(readSeason().substring(0, 4)) < 2021) &&
+        !(readScheduleTeam() == 'VGK' && Number(readSeason().substring(0, 4)) < 2017)) {
         $scheduleTitle.textContent = 'Season Schedule';
     }
     else {

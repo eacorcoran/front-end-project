@@ -506,7 +506,14 @@ $teamDropdownSchedule.addEventListener('change', (event) => {
   const $scheduleTitle = document.querySelector('.schedule-section');
   if (!$scheduleTitle) throw new Error('$scheduleTitle is null');
 
-  if ((abbreviation !== '') && !(abbreviation == 'UTA' && Number(selectedSeason.substring(0,4)) !== 2024)) {
+  if (
+    abbreviation !== '' &&
+    !(
+      abbreviation == 'UTA' && Number(selectedSeason.substring(0, 4)) !== 2024
+    ) &&
+    !(abbreviation == 'SEA' && Number(selectedSeason.substring(0, 4)) < 2021) &&
+    !(abbreviation == 'VGK' && Number(selectedSeason.substring(0, 4)) < 2017)
+  ) {
     $scheduleTitle.textContent = 'Season Schedule';
   } else {
     $scheduleTitle.textContent =
@@ -539,8 +546,10 @@ $scheduleHeaderlink.addEventListener('click', (event) => {
   if (!$scheduleTitle) throw new Error('$scheduleTitle is null');
 
   if (
-    (team !== '') &&
-    !(team == 'UTA' && Number(selectedSeason.substring(0, 4)) === 2024)
+    team !== '' &&
+    !(team == 'UTA' && Number(selectedSeason.substring(0, 4)) === 2024) &&
+    !(team == 'SEA' && Number(selectedSeason.substring(0, 4)) < 2021) &&
+    !(team == 'VGK' && Number(selectedSeason.substring(0, 4)) < 2017)
   ) {
     updateSchedule(schedulefullname, team, selectedSeason);
     $scheduleTitle.textContent = 'Season Schedule';
