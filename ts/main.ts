@@ -136,26 +136,28 @@ async function fetchSchedule(abbreviation: string, season: string) {
 
   var targetUrlSchedule = encodeURIComponent(URLSchedule);
 
-  try {
-    const responseSchedule = await fetch(
-      'https://cors.learningfuze.com?url=' + targetUrlSchedule,
-      {
-        method: 'GET',
-        headers: {
-          accept: 'application/json',
+  if (teamRoster != '') {
+    try {
+      const responseSchedule = await fetch(
+        'https://cors.learningfuze.com?url=' + targetUrlSchedule,
+        {
+          method: 'GET',
+          headers: {
+            accept: 'application/json',
+          },
         },
-      },
-    );
+      );
 
-    if (!responseSchedule.ok) {
-      throw new Error(`HTTP error! Status: ${responseSchedule.status}`);
+      if (!responseSchedule.ok) {
+        throw new Error(`HTTP error! Status: ${responseSchedule.status}`);
+      }
+
+      const arraySchedule = await responseSchedule.json();
+
+      return arraySchedule;
+    } catch (error) {
+      console.error('Error:', error);
     }
-
-    const arraySchedule = await responseSchedule.json();
-
-    return arraySchedule;
-  } catch (error) {
-    console.error('Error:', error);
   }
 }
 
@@ -193,14 +195,28 @@ async function fetchStatistics(gameid: string) {
 document.addEventListener('DOMContentLoaded', () => {
   const selectedseason = readSeason();
   const currentview = readDataView();
-  const stisticsGameId = readStatisticsGameId();
+  const statisticsGameId = readStatisticsGameId();
   const schedulefullname = getFullName(scheduleteam);
-  populateTeamsDropdown(scheduleteam);
-  updateSchedule(schedulefullname, scheduleteam, selectedseason);
-  updateTeams();
   const rosterFullName = getFullName(rosterteam);
-  updateRoster(rosterFullName, rosterteam, selectedseason);
-  updateStatistics(stisticsGameId);
+  populateTeamsDropdown(scheduleteam);
+  updateTeams();
+
+  if (scheduleteam) {
+    updateSchedule(schedulefullname, scheduleteam, selectedseason);
+  } else {
+    const $scheduleTitle = document.querySelector('.schedule-section');
+    if (!$scheduleTitle) throw new Error('$scheduleTitle is null');
+    $scheduleTitle.textContent =
+      'Please select a valid team/season combination to see the full season schedule.';
+  }
+
+  if (rosterteam) {
+    updateRoster(rosterFullName, rosterteam, selectedseason);
+  }
+
+  if (statisticsGameId) {
+    updateStatistics(statisticsGameId);
+  }
 
   // Get reference to the season dropdown
   const selectElement = document.getElementById(
@@ -348,23 +364,25 @@ async function updateSchedule(
 
   const nhlteamSchedule: Schedule[] = [];
 
-  for (let i = 0; i < schedule.games.length; i++) {
-    const schedulecount = schedule.games[i];
+  if (abbreviation != '') {
+    for (let i = 0; i < schedule.games.length; i++) {
+      const schedulecount = schedule.games[i];
 
-    nhlteamSchedule.push({
-      gamedate: schedulecount.gameDate,
-      season: schedulecount.season,
-      gameid: schedulecount.id,
-      awayteamcode: schedulecount.awayTeam.abbrev,
-      awayteamlogo: schedulecount.awayTeam.logo,
-      awayteamscore: schedulecount.awayTeam.score,
-      hometeamcode: schedulecount.homeTeam.abbrev,
-      hometeamlogo: schedulecount.homeTeam.logo,
-      hometeamscore: schedulecount.homeTeam.score,
-      venuename: schedulecount.venue.default,
-      venuetime: schedulecount.venueUTCOffset,
-      starttime: schedulecount.startTimeUTC,
-    });
+      nhlteamSchedule.push({
+        gamedate: schedulecount.gameDate,
+        season: schedulecount.season,
+        gameid: schedulecount.id,
+        awayteamcode: schedulecount.awayTeam.abbrev,
+        awayteamlogo: schedulecount.awayTeam.logo,
+        awayteamscore: schedulecount.awayTeam.score,
+        hometeamcode: schedulecount.homeTeam.abbrev,
+        hometeamlogo: schedulecount.homeTeam.logo,
+        hometeamscore: schedulecount.homeTeam.score,
+        venuename: schedulecount.venue.default,
+        venuetime: schedulecount.venueUTCOffset,
+        starttime: schedulecount.startTimeUTC,
+      });
+    }
   }
 
   updateDOMSchedule(nhlteamSchedule);
@@ -437,6 +455,20 @@ $confirmButton.addEventListener('click', (event) => {
   $dialog.close();
 });
 
+//Add event listener to season dropdown on teams page
+
+const $scheduleDropdownTeam = document.getElementById(
+  'scheduleSeason',
+) as HTMLSelectElement;
+if (!$scheduleDropdownTeam) throw new Error('$scheduleDropdownTeam is null');
+
+$scheduleDropdownTeam.addEventListener('change', (event) => {
+  event.preventDefault();
+  const season = $scheduleDropdownTeam.value;
+  writeSeason(season);
+  updateTeams();
+});
+
 // Add click event listener to the season and teams dropdown on the schedule page
 const $scheduleDropdownSchedule = document.getElementById(
   'scheduleSeasonDropdown',
@@ -470,6 +502,23 @@ $teamDropdownSchedule.addEventListener('change', (event) => {
   writeSeason(selectedSeason);
   writeScheduleTeam(abbreviation);
   updateSchedule(fullteamname, abbreviation, season);
+
+  const $scheduleTitle = document.querySelector('.schedule-section');
+  if (!$scheduleTitle) throw new Error('$scheduleTitle is null');
+
+  if (
+    abbreviation !== '' &&
+    !(
+      abbreviation == 'UTA' && Number(selectedSeason.substring(0, 4)) !== 2024
+    ) &&
+    !(abbreviation == 'SEA' && Number(selectedSeason.substring(0, 4)) < 2021) &&
+    !(abbreviation == 'VGK' && Number(selectedSeason.substring(0, 4)) < 2017)
+  ) {
+    $scheduleTitle.textContent = 'Season Schedule';
+  } else {
+    $scheduleTitle.textContent =
+      'Please select a valid team/season combination to see the full season schedule.';
+  }
 });
 
 // Add click event listener to the schedule link in the header
@@ -492,6 +541,23 @@ $scheduleHeaderlink.addEventListener('click', (event) => {
   populateScheduleSeasonDropdown(selectedSeason);
   const schedulefullname = getFullName(team);
   updateSchedule(schedulefullname, team, selectedSeason);
+
+  const $scheduleTitle = document.querySelector('.schedule-section');
+  if (!$scheduleTitle) throw new Error('$scheduleTitle is null');
+
+  if (
+    team !== '' &&
+    !(team == 'UTA' && Number(selectedSeason.substring(0, 4)) === 2024) &&
+    !(team == 'SEA' && Number(selectedSeason.substring(0, 4)) < 2021) &&
+    !(team == 'VGK' && Number(selectedSeason.substring(0, 4)) < 2017)
+  ) {
+    updateSchedule(schedulefullname, team, selectedSeason);
+    $scheduleTitle.textContent = 'Season Schedule';
+  } else {
+    $scheduleTitle.textContent =
+      'Please select a valid team/season combination to see the full season schedule.';
+  }
+
   viewSwap('schedule');
   writeRoster('');
 });
