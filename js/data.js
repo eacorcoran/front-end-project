@@ -387,13 +387,11 @@ function updateDOMStatistics(nhlgamestats) {
     $tbody.rows[1].cells[1].innerHTML = nhlgamestats.awayteamSOG.toString();
     $tbody.rows[1].cells[2].innerHTML = nhlgamestats.hometeamSOG.toString();
     // Face Off Winning % Updates
-    $tbody.rows[2].cells[1].innerHTML =
-        (nhlgamestats.awayteamFaceOff * 100).toFixed(2).toString() + '%';
-    $tbody.rows[2].cells[2].innerHTML =
-        (nhlgamestats.hometeamFaceOff * 100).toFixed(2).toString() + '%';
+    $tbody.rows[2].cells[1].innerHTML = nhlgamestats.awayteamAssists.toString();
+    $tbody.rows[2].cells[2].innerHTML = nhlgamestats.hometeamAssists.toString();
     // Power Play Updates
-    $tbody.rows[3].cells[1].innerHTML = nhlgamestats.awayteamPP;
-    $tbody.rows[3].cells[2].innerHTML = nhlgamestats.hometeamPP;
+    $tbody.rows[3].cells[1].innerHTML = nhlgamestats.awayteamPP.toString();
+    $tbody.rows[3].cells[2].innerHTML = nhlgamestats.hometeamPP.toString();
     // Penalty Infraction Minutes Updates
     $tbody.rows[4].cells[1].innerHTML = nhlgamestats.awayteamPIM.toString();
     $tbody.rows[4].cells[2].innerHTML = nhlgamestats.hometeamPIM.toString();

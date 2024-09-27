@@ -56,10 +56,10 @@ interface Statistics {
   venuename: string;
   awayteamSOG: number;
   hometeamSOG: number;
-  awayteamFaceOff: number;
-  hometeamFaceOff: number;
-  awayteamPP: string;
-  hometeamPP: string;
+  awayteamAssists: number;
+  hometeamAssists: number;
+  awayteamPP: number;
+  hometeamPP: number;
   awayteamPIM: number;
   hometeamPIM: number;
   awayteamHits: number;
@@ -394,6 +394,77 @@ async function updateSchedule(
 async function updateStatistics(gameid: string) {
   const gamestatistics = await fetchStatistics(gameid); // Wait for the promise to resolve
 
+  let awayAssists = 0;
+  let awayBlocked = 0;
+  let awayPPGoals = 0;
+  let awayPIM = 0;
+  let awayHits = 0;
+
+
+  let homeAssists = 0;
+  let homeBlocked = 0;
+  let homePPGoals = 0;
+  let homePIM = 0;
+  let homeHits = 0;
+
+  for (
+    let i = 0;
+    i < gamestatistics.playerByGameStats.awayTeam.defense.length;
+    i++
+  ) {
+    awayAssists += gamestatistics.playerByGameStats.awayTeam.defense[i].assists;
+    awayBlocked +=
+      gamestatistics.playerByGameStats.awayTeam.defense[i].blockedShots;
+    awayPPGoals +=
+      gamestatistics.playerByGameStats.awayTeam.defense[i].powerPlayGoals;
+    awayPIM += gamestatistics.playerByGameStats.awayTeam.defense[i].pim;
+    awayHits += gamestatistics.playerByGameStats.awayTeam.defense[i].hits;
+  }
+
+  for (
+    let i = 0;
+    i < gamestatistics.playerByGameStats.awayTeam.forwards.length;
+    i++
+  ) {
+    awayAssists +=
+      gamestatistics.playerByGameStats.awayTeam.forwards[i].assists;
+    awayBlocked +=
+      gamestatistics.playerByGameStats.awayTeam.forwards[i].blockedShots;
+    awayPPGoals +=
+      gamestatistics.playerByGameStats.awayTeam.forwards[i].powerPlayGoals;
+    awayPIM += gamestatistics.playerByGameStats.awayTeam.forwards[i].pim;
+    awayHits += gamestatistics.playerByGameStats.awayTeam.forwards[i].hits;
+  }
+
+  for (
+    let i = 0;
+    i < gamestatistics.playerByGameStats.homeTeam.defense.length;
+    i++
+  ) {
+    homeAssists += gamestatistics.playerByGameStats.homeTeam.defense[i].assists;
+    homeBlocked +=
+      gamestatistics.playerByGameStats.homeTeam.defense[i].blockedShots;
+    homePPGoals +=
+      gamestatistics.playerByGameStats.homeTeam.defense[i].powerPlayGoals;
+    homePIM += gamestatistics.playerByGameStats.homeTeam.defense[i].pim;
+    homeHits += gamestatistics.playerByGameStats.homeTeam.defense[i].hits;
+  }
+
+  for (
+    let i = 0;
+    i < gamestatistics.playerByGameStats.homeTeam.forwards.length;
+    i++
+  ) {
+    homeAssists +=
+      gamestatistics.playerByGameStats.homeTeam.forwards[i].assists;
+    homeBlocked +=
+      gamestatistics.playerByGameStats.homeTeam.forwards[i].blockedShots;
+    homePPGoals +=
+      gamestatistics.playerByGameStats.homeTeam.forwards[i].powerPlayGoals;
+    homePIM += gamestatistics.playerByGameStats.homeTeam.forwards[i].pim;
+    homeHits += gamestatistics.playerByGameStats.homeTeam.forwards[i].hits;
+  }
+
   const nhlgamestats: Statistics = {
     gamedate: gamestatistics.gameDate,
     gameid: gamestatistics.id,
@@ -406,16 +477,16 @@ async function updateStatistics(gameid: string) {
     venuename: gamestatistics.venue.default,
     awayteamSOG: gamestatistics.awayTeam.sog,
     hometeamSOG: gamestatistics.homeTeam.sog,
-    awayteamFaceOff: gamestatistics.summary.teamGameStats[1].awayValue,
-    hometeamFaceOff: gamestatistics.summary.teamGameStats[1].homeValue,
-    awayteamPP: gamestatistics.summary.teamGameStats[2].awayValue,
-    hometeamPP: gamestatistics.summary.teamGameStats[2].homeValue,
-    awayteamPIM: gamestatistics.summary.teamGameStats[4].awayValue,
-    hometeamPIM: gamestatistics.summary.teamGameStats[4].homeValue,
-    awayteamHits: gamestatistics.summary.teamGameStats[5].awayValue,
-    hometeamHits: gamestatistics.summary.teamGameStats[5].homeValue,
-    awayteamBlocked: gamestatistics.summary.teamGameStats[6].awayValue,
-    hometeamBlocked: gamestatistics.summary.teamGameStats[6].homeValue,
+    awayteamAssists: awayAssists,
+    hometeamAssists: homeAssists,
+    awayteamPP: awayPPGoals,
+    hometeamPP: homePPGoals,
+    awayteamPIM: awayPIM,
+    hometeamPIM: homePIM,
+    awayteamHits: awayHits,
+    hometeamHits: homeHits,
+    awayteamBlocked: awayBlocked,
+    hometeamBlocked: homeBlocked,
   };
 
   updateDOMStatistics(nhlgamestats);
