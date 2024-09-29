@@ -31,10 +31,10 @@ Try the application live at [https://eacorcoran.github.io/nhl-team-info/](https:
 
 ## Preview
 
-![List of NHL Teams](images/list of teams.png)
+![List of NHL Teams](https://github.com/eacorcoran/nhl-team-info/blob/main/images/list%20of%20teams.png)
 
-![NHL Roster](images/example roster.png)
+![NHL Roster](https://github.com/eacorcoran/nhl-team-info/blob/main/images/example%20roster.png)
 
-![NHL Schedule](images/example schedule.png)
+![NHL Schedule](https://github.com/eacorcoran/nhl-team-info/blob/main/images/example%20schedule.png)
 
-![NHL Game Statistics](images/example statistics.png)
+![NHL Game Statistics](https://github.com/eacorcoran/nhl-team-info/blob/main/images/example%20statistics.png)
